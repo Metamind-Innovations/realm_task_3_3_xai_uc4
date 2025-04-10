@@ -1,0 +1,1822 @@
+{
+  "model_summary": {
+    "input_shape": {
+      "rows": 10,
+      "columns": 15
+    },
+    "output_shape": {
+      "rows": 10,
+      "columns": 4
+    },
+    "input_features": {
+      "age": {
+        "description": "Patient age in years",
+        "dtype": "int64",
+        "min": 27.0,
+        "max": 84.0,
+        "mean": 60.4,
+        "median": 69.5,
+        "std": 18.470396735196445,
+        "unique_values": 8
+      },
+      "Sex": {
+        "description": "0: Female, 1: Male",
+        "dtype": "int64",
+        "min": 0.0,
+        "max": 1.0,
+        "mean": 0.5,
+        "median": 0.5,
+        "std": 0.5270462766947299,
+        "unique_values": 2
+      },
+      "Pneumonia": {
+        "description": "0: not known, 1: active, 2: active bilateral",
+        "dtype": "int64",
+        "min": 0.0,
+        "max": 2.0,
+        "mean": 0.4,
+        "median": 0.0,
+        "std": 0.6992058987801011,
+        "unique_values": 3
+      },
+      "PH": {
+        "description": "Measurement from blood test",
+        "dtype": "float64",
+        "min": 7.22,
+        "max": 7.47,
+        "mean": 7.404999999999999,
+        "median": 7.42,
+        "std": 0.0782091213776671,
+        "unique_values": 6
+      },
+      "DiaPr": {
+        "description": "Diastolic pressure (mmHg)",
+        "dtype": "float64",
+        "min": 65.0,
+        "max": 96.0,
+        "mean": 82.1,
+        "median": 83.0,
+        "std": 9.25502866314068,
+        "unique_values": 8
+      },
+      "Respiratory rate": {
+        "description": "Respiratory rate (f/min)",
+        "dtype": "float64",
+        "min": 12.0,
+        "max": 90.0,
+        "mean": 32.1,
+        "median": 29.0,
+        "std": 21.486171263292945,
+        "unique_values": 8
+      },
+      "SPO2": {
+        "description": "Percentage of arterial oxygen saturation",
+        "dtype": "float64",
+        "min": 31.0,
+        "max": 97.0,
+        "mean": 85.3,
+        "median": 92.0,
+        "std": 19.436792145024572,
+        "unique_values": 6
+      },
+      "GCS": {
+        "description": "Glasgow Coma Scale (3 to 15)",
+        "dtype": "float64",
+        "min": 15.0,
+        "max": 15.0,
+        "mean": 15.0,
+        "median": 15.0,
+        "std": 0.0,
+        "unique_values": 1
+      },
+      "SysPr": {
+        "description": "Systolic pressure (mmHg)",
+        "dtype": "float64",
+        "min": 103.0,
+        "max": 180.0,
+        "mean": 138.0,
+        "median": 135.0,
+        "std": 21.071307505705477,
+        "unique_values": 8
+      },
+      "Pulse rate": {
+        "description": "Pulse rate in bpm",
+        "dtype": "float64",
+        "min": 18.0,
+        "max": 120.0,
+        "mean": 78.9,
+        "median": 85.0,
+        "std": 35.20243047164657,
+        "unique_values": 9
+      },
+      "SM PY": {
+        "description": "Accumulated smoking in pack years",
+        "dtype": "float64",
+        "min": 5.0,
+        "max": 100.0,
+        "mean": 54.5,
+        "median": 55.0,
+        "std": 22.662989897873384,
+        "unique_values": 5
+      },
+      "smoker": {
+        "description": "0: non smoker, 1: ex smoker, 2: active smoker, 3: social smoker",
+        "dtype": "int64",
+        "min": 0.0,
+        "max": 4.0,
+        "mean": 2.1,
+        "median": 2.0,
+        "std": 1.1005049346146119,
+        "unique_values": 5
+      },
+      "ex sm years": {
+        "description": "Time passed since active smoking has stopped (years)",
+        "dtype": "float64",
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "std": 0.0,
+        "unique_values": 1
+      },
+      "hospitalizations": {
+        "description": "Count of registered admissions in the clinic",
+        "dtype": "float64",
+        "min": 0.0,
+        "max": 0.0,
+        "mean": 0.0,
+        "median": 0.0,
+        "std": 0.0,
+        "unique_values": 1
+      },
+      "(MT)": {
+        "description": "Malignant tumor: 0: not known, 1: active, 2: past",
+        "dtype": "int64",
+        "min": 0.0,
+        "max": 2.0,
+        "mean": 0.4,
+        "median": 0.0,
+        "std": 0.8432740427115679,
+        "unique_values": 2
+      }
+    },
+    "output_features": {
+      "VenDep": {
+        "description": "Ventilator Dependence (0: False, 1: True)",
+        "unique_values": 2
+      },
+      "ARF": {
+        "description": "Acute Respiratory Failure Type (0: No ARF, 1: Low O2, 2: High CO2)",
+        "unique_values": 3
+      },
+      "ARF_combo": {
+        "description": "ARF Occurrence (0: No ARF, 1: ARF Type 1 or 2)",
+        "unique_values": 2
+      },
+      "Mortality": {
+        "description": "Mortality Prediction (0: Live, 1: Deceased)",
+        "unique_values": 1
+      }
+    },
+    "output_statistics": {
+      "VenDep": {
+        "distribution": {
+          "0": 6,
+          "1": 4
+        },
+        "unique_values": 2,
+        "most_common": 0
+      },
+      "ARF": {
+        "distribution": {
+          "2": 6,
+          "1": 3,
+          "0": 1
+        },
+        "unique_values": 3,
+        "most_common": 2
+      },
+      "ARF_combo": {
+        "distribution": {
+          "1": 5,
+          "0": 5
+        },
+        "unique_values": 2,
+        "most_common": 0
+      },
+      "Mortality": {
+        "distribution": {
+          "-1": 10
+        },
+        "unique_values": 1,
+        "most_common": -1
+      }
+    }
+  },
+  "feature_importance": {
+    "VenDep": [
+      {
+        "feature": "PH",
+        "correlation": -0.7428129759005359,
+        "p_value": 0.013843711015053595,
+        "significant": true
+      },
+      {
+        "feature": "DiaPr",
+        "correlation": 0.7114047863270813,
+        "p_value": 0.021049968136053886,
+        "significant": true
+      },
+      {
+        "feature": "smoker",
+        "correlation": -0.6647526039549086,
+        "p_value": 0.035988098532027626,
+        "significant": true
+      },
+      {
+        "feature": "age",
+        "correlation": 0.6453668671851527,
+        "p_value": 0.04388117734729161,
+        "significant": true
+      },
+      {
+        "feature": "Respiratory rate",
+        "correlation": 0.45664523893813613,
+        "p_value": 0.18461915757269035,
+        "significant": false
+      },
+      {
+        "feature": "SPO2",
+        "correlation": -0.45608495897071594,
+        "p_value": 0.18522741292352818,
+        "significant": false
+      },
+      {
+        "feature": "SM PY",
+        "correlation": 0.44622487562329194,
+        "p_value": 0.19612473052132365,
+        "significant": false
+      },
+      {
+        "feature": "Sex",
+        "correlation": 0.4082482904638629,
+        "p_value": 0.2415039719130602,
+        "significant": false
+      },
+      {
+        "feature": "(MT)",
+        "correlation": -0.4082482904638629,
+        "p_value": 0.2415039719130602,
+        "significant": false
+      },
+      {
+        "feature": "SysPr",
+        "correlation": 0.3982412536341457,
+        "p_value": 0.2543580121997789,
+        "significant": false
+      },
+      {
+        "feature": "Pulse rate",
+        "correlation": -0.22370802333183504,
+        "p_value": 0.534402312463336,
+        "significant": false
+      },
+      {
+        "feature": "Pneumonia",
+        "correlation": -0.18463723646899904,
+        "p_value": 0.6095958024359937,
+        "significant": false
+      },
+      {
+        "feature": "GCS",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      },
+      {
+        "feature": "ex sm years",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      },
+      {
+        "feature": "hospitalizations",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      }
+    ],
+    "ARF": [
+      {
+        "feature": "SPO2",
+        "correlation": -0.8076196729761526,
+        "p_value": 0.004717074610003792,
+        "significant": true
+      },
+      {
+        "feature": "smoker",
+        "correlation": -0.7572401854185357,
+        "p_value": 0.011200329664547537,
+        "significant": true
+      },
+      {
+        "feature": "(MT)",
+        "correlation": -0.6972166887783962,
+        "p_value": 0.02502327947157299,
+        "significant": true
+      },
+      {
+        "feature": "DiaPr",
+        "correlation": 0.6942949493388083,
+        "p_value": 0.025900989944125423,
+        "significant": true
+      },
+      {
+        "feature": "SysPr",
+        "correlation": 0.683828191308575,
+        "p_value": 0.029218247087111914,
+        "significant": true
+      },
+      {
+        "feature": "age",
+        "correlation": 0.5476415514324751,
+        "p_value": 0.1012823072206169,
+        "significant": false
+      },
+      {
+        "feature": "PH",
+        "correlation": -0.5404774768341042,
+        "p_value": 0.10675032777291994,
+        "significant": false
+      },
+      {
+        "feature": "Respiratory rate",
+        "correlation": 0.502404385451198,
+        "p_value": 0.13890505475228163,
+        "significant": false
+      },
+      {
+        "feature": "SM PY",
+        "correlation": 0.291691675598474,
+        "p_value": 0.4134991168918083,
+        "significant": false
+      },
+      {
+        "feature": "Sex",
+        "correlation": 0.2788866755113585,
+        "p_value": 0.43521156357247714,
+        "significant": false
+      },
+      {
+        "feature": "Pneumonia",
+        "correlation": -0.1543033499620919,
+        "p_value": 0.6703838965731981,
+        "significant": false
+      },
+      {
+        "feature": "Pulse rate",
+        "correlation": 0.0069565322594140186,
+        "p_value": 0.9847833220826707,
+        "significant": false
+      },
+      {
+        "feature": "GCS",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      },
+      {
+        "feature": "ex sm years",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      },
+      {
+        "feature": "hospitalizations",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      }
+    ],
+    "ARF_combo": [
+      {
+        "feature": "DiaPr",
+        "correlation": 0.7858688377005101,
+        "p_value": 0.007038996524261035,
+        "significant": true
+      },
+      {
+        "feature": "PH",
+        "correlation": -0.6873714891037419,
+        "p_value": 0.028064597306792387,
+        "significant": true
+      },
+      {
+        "feature": "smoker",
+        "correlation": -0.6704783996548059,
+        "p_value": 0.03385501336153071,
+        "significant": true
+      },
+      {
+        "feature": "SysPr",
+        "correlation": 0.640320240200175,
+        "p_value": 0.04611126500596588,
+        "significant": true
+      },
+      {
+        "feature": "age",
+        "correlation": 0.536451389968237,
+        "p_value": 0.10990323125486799,
+        "significant": false
+      },
+      {
+        "feature": "(MT)",
+        "correlation": -0.49999999999999983,
+        "p_value": 0.1411132812500002,
+        "significant": false
+      },
+      {
+        "feature": "Respiratory rate",
+        "correlation": 0.40719065700082574,
+        "p_value": 0.24284492607235084,
+        "significant": false
+      },
+      {
+        "feature": "SM PY",
+        "correlation": 0.39534883720930225,
+        "p_value": 0.25814244995306385,
+        "significant": false
+      },
+      {
+        "feature": "SPO2",
+        "correlation": -0.37419953684327867,
+        "p_value": 0.2867491138425664,
+        "significant": false
+      },
+      {
+        "feature": "Pneumonia",
+        "correlation": -0.3015113445777635,
+        "p_value": 0.397203840780294,
+        "significant": false
+      },
+      {
+        "feature": "Sex",
+        "correlation": 0.19999999999999998,
+        "p_value": 0.5795840000000002,
+        "significant": false
+      },
+      {
+        "feature": "Pulse rate",
+        "correlation": -0.09881435399714633,
+        "p_value": 0.7859418750879521,
+        "significant": false
+      },
+      {
+        "feature": "GCS",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      },
+      {
+        "feature": "ex sm years",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      },
+      {
+        "feature": "hospitalizations",
+        "correlation": 0,
+        "p_value": 1.0,
+        "significant": false
+      }
+    ]
+  },
+  "feature_distributions": {
+    "VenDep": {
+      "age": {
+        "1": {
+          "mean": 74.25,
+          "median": 71.5,
+          "std": 6.652067347825035,
+          "min": 70.0,
+          "max": 84.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 51.166666666666664,
+          "median": 54.5,
+          "std": 18.21446311771683,
+          "min": 27.0,
+          "max": 70.0,
+          "count": 6
+        }
+      },
+      "Sex": {
+        "1": {
+          "mean": 0.75,
+          "median": 1.0,
+          "std": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 0.3333333333333333,
+          "median": 0.0,
+          "std": 0.5163977794943223,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 6
+        }
+      },
+      "Pneumonia": {
+        "1": {
+          "mean": 0.25,
+          "median": 0.0,
+          "std": 0.5,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 0.5,
+          "median": 0.0,
+          "std": 0.8366600265340756,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 6
+        }
+      },
+      "PH": {
+        "1": {
+          "mean": 7.3375,
+          "median": 7.365,
+          "std": 0.08500000000000028,
+          "min": 7.22,
+          "max": 7.4,
+          "count": 4
+        },
+        "0": {
+          "mean": 7.449999999999999,
+          "median": 7.46,
+          "std": 0.024494897427831695,
+          "min": 7.42,
+          "max": 7.47,
+          "count": 6
+        }
+      },
+      "DiaPr": {
+        "1": {
+          "mean": 89.75,
+          "median": 90.0,
+          "std": 5.315072906367325,
+          "min": 83.0,
+          "max": 96.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 77.0,
+          "median": 78.0,
+          "std": 7.694153624668538,
+          "min": 65.0,
+          "max": 86.0,
+          "count": 6
+        }
+      },
+      "Respiratory rate": {
+        "1": {
+          "mean": 43.5,
+          "median": 32.0,
+          "std": 31.606961258558215,
+          "min": 20.0,
+          "max": 90.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 24.5,
+          "median": 28.5,
+          "std": 7.635443667528429,
+          "min": 12.0,
+          "max": 30.0,
+          "count": 6
+        }
+      },
+      "SPO2": {
+        "1": {
+          "mean": 75.0,
+          "median": 88.5,
+          "std": 29.518355871107275,
+          "min": 31.0,
+          "max": 92.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 92.16666666666667,
+          "median": 92.5,
+          "std": 3.9707262140150976,
+          "min": 85.0,
+          "max": 97.0,
+          "count": 6
+        }
+      },
+      "GCS": {
+        "1": {
+          "mean": 15.0,
+          "median": 15.0,
+          "std": 0.0,
+          "min": 15.0,
+          "max": 15.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 15.0,
+          "median": 15.0,
+          "std": 0.0,
+          "min": 15.0,
+          "max": 15.0,
+          "count": 6
+        }
+      },
+      "SysPr": {
+        "1": {
+          "mean": 147.75,
+          "median": 138.0,
+          "std": 21.608254595562936,
+          "min": 135.0,
+          "max": 180.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 131.5,
+          "median": 134.0,
+          "std": 19.806564568344506,
+          "min": 103.0,
+          "max": 163.0,
+          "count": 6
+        }
+      },
+      "Pulse rate": {
+        "1": {
+          "mean": 69.75,
+          "median": 79.5,
+          "std": 34.83652297996075,
+          "min": 20.0,
+          "max": 100.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 85.0,
+          "median": 92.0,
+          "std": 37.29343105695693,
+          "min": 18.0,
+          "max": 120.0,
+          "count": 6
+        }
+      },
+      "SM PY": {
+        "1": {
+          "mean": 66.25,
+          "median": 57.5,
+          "std": 22.86737122335374,
+          "min": 50.0,
+          "max": 100.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 46.666666666666664,
+          "median": 55.0,
+          "std": 20.65591117977289,
+          "min": 5.0,
+          "max": 60.0,
+          "count": 6
+        }
+      },
+      "smoker": {
+        "1": {
+          "mean": 1.25,
+          "median": 1.5,
+          "std": 0.9574271077563381,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 2.6666666666666665,
+          "median": 2.5,
+          "std": 0.816496580927726,
+          "min": 2.0,
+          "max": 4.0,
+          "count": 6
+        }
+      },
+      "ex sm years": {
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 6
+        }
+      },
+      "hospitalizations": {
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 6
+        }
+      },
+      "(MT)": {
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 4
+        },
+        "0": {
+          "mean": 0.6666666666666666,
+          "median": 0.0,
+          "std": 1.0327955589886446,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 6
+        }
+      }
+    },
+    "ARF": {
+      "age": {
+        "2": {
+          "mean": 69.66666666666667,
+          "median": 70.0,
+          "std": 10.289152864384253,
+          "min": 52.0,
+          "max": 84.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 43.0,
+          "median": 32.0,
+          "std": 23.515952032609693,
+          "min": 27.0,
+          "max": 70.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 57.0,
+          "median": 57.0,
+          "std": null,
+          "min": 57.0,
+          "max": 57.0,
+          "count": 1
+        }
+      },
+      "Sex": {
+        "2": {
+          "mean": 0.6666666666666666,
+          "median": 1.0,
+          "std": 0.5163977794943223,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 1.0,
+          "median": 1.0,
+          "std": null,
+          "min": 1.0,
+          "max": 1.0,
+          "count": 1
+        }
+      },
+      "Pneumonia": {
+        "2": {
+          "mean": 0.3333333333333333,
+          "median": 0.0,
+          "std": 0.5163977794943223,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 2.0,
+          "median": 2.0,
+          "std": null,
+          "min": 2.0,
+          "max": 2.0,
+          "count": 1
+        }
+      },
+      "PH": {
+        "2": {
+          "mean": 7.373333333333334,
+          "median": 7.4,
+          "std": 0.08755950357709137,
+          "min": 7.22,
+          "max": 7.47,
+          "count": 6
+        },
+        "1": {
+          "mean": 7.463333333333334,
+          "median": 7.47,
+          "std": 0.01154700538379227,
+          "min": 7.45,
+          "max": 7.47,
+          "count": 3
+        },
+        "0": {
+          "mean": 7.42,
+          "median": 7.42,
+          "std": null,
+          "min": 7.42,
+          "max": 7.42,
+          "count": 1
+        }
+      },
+      "DiaPr": {
+        "2": {
+          "mean": 86.83333333333333,
+          "median": 88.0,
+          "std": 6.882344561751225,
+          "min": 76.0,
+          "max": 96.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 76.0,
+          "median": 80.0,
+          "std": 9.643650760992955,
+          "min": 65.0,
+          "max": 83.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 72.0,
+          "median": 72.0,
+          "std": null,
+          "min": 72.0,
+          "max": 72.0,
+          "count": 1
+        }
+      },
+      "Respiratory rate": {
+        "2": {
+          "mean": 38.666666666666664,
+          "median": 29.5,
+          "std": 25.609893921425495,
+          "min": 20.0,
+          "max": 90.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 25.666666666666668,
+          "median": 29.0,
+          "std": 6.6583281184793925,
+          "min": 18.0,
+          "max": 30.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 12.0,
+          "median": 12.0,
+          "std": null,
+          "min": 12.0,
+          "max": 12.0,
+          "count": 1
+        }
+      },
+      "SPO2": {
+        "2": {
+          "mean": 79.5,
+          "median": 88.5,
+          "std": 24.006249186409775,
+          "min": 31.0,
+          "max": 92.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 93.0,
+          "median": 93.0,
+          "std": 1.0,
+          "min": 92.0,
+          "max": 94.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 97.0,
+          "median": 97.0,
+          "std": null,
+          "min": 97.0,
+          "max": 97.0,
+          "count": 1
+        }
+      },
+      "GCS": {
+        "2": {
+          "mean": 15.0,
+          "median": 15.0,
+          "std": 0.0,
+          "min": 15.0,
+          "max": 15.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 15.0,
+          "median": 15.0,
+          "std": 0.0,
+          "min": 15.0,
+          "max": 15.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 15.0,
+          "median": 15.0,
+          "std": null,
+          "min": 15.0,
+          "max": 15.0,
+          "count": 1
+        }
+      },
+      "SysPr": {
+        "2": {
+          "mean": 148.0,
+          "median": 138.0,
+          "std": 19.089263998384013,
+          "min": 134.0,
+          "max": 180.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 119.33333333333333,
+          "median": 120.0,
+          "std": 16.010413278030438,
+          "min": 103.0,
+          "max": 135.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 134.0,
+          "median": 134.0,
+          "std": null,
+          "min": 134.0,
+          "max": 134.0,
+          "count": 1
+        }
+      },
+      "Pulse rate": {
+        "2": {
+          "mean": 77.16666666666667,
+          "median": 85.0,
+          "std": 29.66086085511792,
+          "min": 20.0,
+          "max": 100.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 84.33333333333333,
+          "median": 115.0,
+          "std": 57.50072463311513,
+          "min": 18.0,
+          "max": 120.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 73.0,
+          "median": 73.0,
+          "std": null,
+          "min": 73.0,
+          "max": 73.0,
+          "count": 1
+        }
+      },
+      "SM PY": {
+        "2": {
+          "mean": 62.5,
+          "median": 57.5,
+          "std": 18.907670401189037,
+          "min": 50.0,
+          "max": 100.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 38.333333333333336,
+          "median": 55.0,
+          "std": 28.86751345948129,
+          "min": 5.0,
+          "max": 55.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 55.0,
+          "median": 55.0,
+          "std": null,
+          "min": 55.0,
+          "max": 55.0,
+          "count": 1
+        }
+      },
+      "smoker": {
+        "2": {
+          "mean": 1.5,
+          "median": 2.0,
+          "std": 0.8366600265340756,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 3.0,
+          "median": 3.0,
+          "std": 1.0,
+          "min": 2.0,
+          "max": 4.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 3.0,
+          "median": 3.0,
+          "std": null,
+          "min": 3.0,
+          "max": 3.0,
+          "count": 1
+        }
+      },
+      "ex sm years": {
+        "2": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": null,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 1
+        }
+      },
+      "hospitalizations": {
+        "2": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": null,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 1
+        }
+      },
+      "(MT)": {
+        "2": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 6
+        },
+        "1": {
+          "mean": 0.6666666666666666,
+          "median": 0.0,
+          "std": 1.1547005383792517,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 3
+        },
+        "0": {
+          "mean": 2.0,
+          "median": 2.0,
+          "std": null,
+          "min": 2.0,
+          "max": 2.0,
+          "count": 1
+        }
+      }
+    },
+    "ARF_combo": {
+      "age": {
+        "1": {
+          "mean": 69.8,
+          "median": 70.0,
+          "std": 11.497825881443848,
+          "min": 52.0,
+          "max": 84.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 51.0,
+          "median": 57.0,
+          "std": 20.359273071502333,
+          "min": 27.0,
+          "max": 70.0,
+          "count": 5
+        }
+      },
+      "Sex": {
+        "1": {
+          "mean": 0.6,
+          "median": 1.0,
+          "std": 0.5477225575051662,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 0.4,
+          "median": 0.0,
+          "std": 0.5477225575051662,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 5
+        }
+      },
+      "Pneumonia": {
+        "1": {
+          "mean": 0.2,
+          "median": 0.0,
+          "std": 0.44721359549995804,
+          "min": 0.0,
+          "max": 1.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 0.6,
+          "median": 0.0,
+          "std": 0.8944271909999157,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 5
+        }
+      },
+      "PH": {
+        "1": {
+          "mean": 7.354000000000001,
+          "median": 7.4,
+          "std": 0.08234075540095578,
+          "min": 7.22,
+          "max": 7.42,
+          "count": 5
+        },
+        "0": {
+          "mean": 7.456,
+          "median": 7.47,
+          "std": 0.021908902300206545,
+          "min": 7.42,
+          "max": 7.47,
+          "count": 5
+        }
+      },
+      "DiaPr": {
+        "1": {
+          "mean": 89.0,
+          "median": 90.0,
+          "std": 4.898979485566356,
+          "min": 83.0,
+          "max": 96.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 75.2,
+          "median": 76.0,
+          "std": 7.049822692805827,
+          "min": 65.0,
+          "max": 83.0,
+          "count": 5
+        }
+      },
+      "Respiratory rate": {
+        "1": {
+          "mean": 40.4,
+          "median": 29.0,
+          "std": 28.23650119968832,
+          "min": 20.0,
+          "max": 90.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 23.8,
+          "median": 29.0,
+          "std": 8.318653737234168,
+          "min": 12.0,
+          "max": 30.0,
+          "count": 5
+        }
+      },
+      "SPO2": {
+        "1": {
+          "mean": 78.4,
+          "median": 92.0,
+          "std": 26.670208098175767,
+          "min": 31.0,
+          "max": 92.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 92.2,
+          "median": 93.0,
+          "std": 4.43846820423443,
+          "min": 85.0,
+          "max": 97.0,
+          "count": 5
+        }
+      },
+      "GCS": {
+        "1": {
+          "mean": 15.0,
+          "median": 15.0,
+          "std": 0.0,
+          "min": 15.0,
+          "max": 15.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 15.0,
+          "median": 15.0,
+          "std": 0.0,
+          "min": 15.0,
+          "max": 15.0,
+          "count": 5
+        }
+      },
+      "SysPr": {
+        "1": {
+          "mean": 150.8,
+          "median": 140.0,
+          "std": 19.917329138215294,
+          "min": 135.0,
+          "max": 180.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 125.2,
+          "median": 134.0,
+          "std": 13.881642554107206,
+          "min": 103.0,
+          "max": 135.0,
+          "count": 5
+        }
+      },
+      "Pulse rate": {
+        "1": {
+          "mean": 75.6,
+          "median": 85.0,
+          "std": 32.8831263720468,
+          "min": 20.0,
+          "max": 100.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 82.2,
+          "median": 85.0,
+          "std": 40.98414327517412,
+          "min": 18.0,
+          "max": 120.0,
+          "count": 5
+        }
+      },
+      "SM PY": {
+        "1": {
+          "mean": 63.0,
+          "median": 55.0,
+          "std": 21.095023109728988,
+          "min": 50.0,
+          "max": 100.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 46.0,
+          "median": 55.0,
+          "std": 23.021728866442675,
+          "min": 5.0,
+          "max": 60.0,
+          "count": 5
+        }
+      },
+      "smoker": {
+        "1": {
+          "mean": 1.4,
+          "median": 2.0,
+          "std": 0.8944271909999159,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 2.8,
+          "median": 3.0,
+          "std": 0.8366600265340756,
+          "min": 2.0,
+          "max": 4.0,
+          "count": 5
+        }
+      },
+      "ex sm years": {
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 5
+        }
+      },
+      "hospitalizations": {
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 5
+        }
+      },
+      "(MT)": {
+        "1": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "count": 5
+        },
+        "0": {
+          "mean": 0.8,
+          "median": 0.0,
+          "std": 1.0954451150103324,
+          "min": 0.0,
+          "max": 2.0,
+          "count": 5
+        }
+      }
+    }
+  },
+  "feature_correlations": {
+    "age": {
+      "age": 1.0,
+      "Sex": 0.42231279635797386,
+      "Pneumonia": 0.09808013035878937,
+      "PH": -0.4691953449313446,
+      "DiaPr": 0.5970764466379044,
+      "Respiratory rate": 0.3229813763110064,
+      "SPO2": -0.25539706112549665,
+      "GCS": 0.0,
+      "SysPr": 0.5021756160124964,
+      "Pulse rate": 0.14771458389014683,
+      "SM PY": 0.5499887580475938,
+      "smoker": -0.6581361696108721,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": -0.4537009096007962
+    },
+    "Sex": {
+      "age": 0.42231279635797386,
+      "Sex": 1.0,
+      "Pneumonia": 0.6030226891555273,
+      "PH": -0.30999106371344703,
+      "DiaPr": 0.3075138930132433,
+      "Respiratory rate": 0.2600133110969129,
+      "SPO2": -0.39589226361680185,
+      "GCS": 0.0,
+      "SysPr": 0.34017012760634313,
+      "Pulse rate": -0.25452182090174097,
+      "SM PY": 0.4883720930232559,
+      "smoker": -0.09578262852211514,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": -5.551115123125783e-17
+    },
+    "Pneumonia": {
+      "age": 0.09808013035878937,
+      "Sex": 0.6030226891555273,
+      "Pneumonia": 1.0,
+      "PH": 0.18286791344478528,
+      "DiaPr": -0.315931159889127,
+      "Respiratory rate": -0.4023391310575368,
+      "SPO2": 0.18640719168572822,
+      "GCS": 0.0,
+      "SysPr": 0.22624666005833358,
+      "Pulse rate": -0.04785040554772503,
+      "SM PY": 0.08414270081239915,
+      "smoker": 0.23103639290316308,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.4522670168666454
+    },
+    "PH": {
+      "age": -0.4691953449313446,
+      "Sex": -0.30999106371344703,
+      "Pneumonia": 0.18286791344478528,
+      "PH": 1.0,
+      "DiaPr": -0.6685139510177335,
+      "Respiratory rate": -0.14844220465987276,
+      "SPO2": 0.812428144972996,
+      "GCS": 0.0,
+      "SysPr": -0.19215578270182704,
+      "Pulse rate": -0.12490737675131146,
+      "SM PY": -0.08306130625284534,
+      "smoker": 0.47119530429595174,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.20216808503051387
+    },
+    "DiaPr": {
+      "age": 0.5970764466379044,
+      "Sex": 0.3075138930132433,
+      "Pneumonia": -0.315931159889127,
+      "PH": -0.6685139510177335,
+      "DiaPr": 1.0,
+      "Respiratory rate": 0.470415040435188,
+      "SPO2": -0.5851169367653993,
+      "GCS": 0.0,
+      "SysPr": 0.6341374497423398,
+      "Pulse rate": 0.3062892606086182,
+      "SM PY": 0.20156595399059257,
+      "smoker": -0.5792716166042461,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": -0.3473768050705154
+    },
+    "Respiratory rate": {
+      "age": 0.3229813763110064,
+      "Sex": 0.2600133110969129,
+      "Pneumonia": -0.4023391310575368,
+      "PH": -0.14844220465987276,
+      "DiaPr": 0.470415040435188,
+      "Respiratory rate": 1.0,
+      "SPO2": -0.055419568115861156,
+      "GCS": 0.0,
+      "SysPr": 0.0338677276573127,
+      "Pulse rate": -0.3863358791863101,
+      "SM PY": 0.6036553001376769,
+      "smoker": -0.4844680358040826,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": -0.2722780899222388
+    },
+    "SPO2": {
+      "age": -0.25539706112549665,
+      "Sex": -0.39589226361680185,
+      "Pneumonia": 0.18640719168572822,
+      "PH": 0.812428144972996,
+      "DiaPr": -0.5851169367653993,
+      "Respiratory rate": -0.055419568115861156,
+      "SPO2": 1.0,
+      "GCS": 0.0,
+      "SysPr": -0.06836628102717289,
+      "Pulse rate": -0.2290840841182317,
+      "SM PY": 0.03821451286266037,
+      "smoker": 0.08155311581457007,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.2630243121289714
+    },
+    "GCS": {
+      "age": 0.0,
+      "Sex": 0.0,
+      "Pneumonia": 0.0,
+      "PH": 0.0,
+      "DiaPr": 0.0,
+      "Respiratory rate": 0.0,
+      "SPO2": 0.0,
+      "GCS": 0.0,
+      "SysPr": 0.0,
+      "Pulse rate": 0.0,
+      "SM PY": 0.0,
+      "smoker": 0.0,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.0
+    },
+    "SysPr": {
+      "age": 0.5021756160124964,
+      "Sex": 0.34017012760634313,
+      "Pneumonia": 0.22624666005833358,
+      "PH": -0.19215578270182704,
+      "DiaPr": 0.6341374497423398,
+      "Respiratory rate": 0.0338677276573127,
+      "SPO2": -0.06836628102717289,
+      "GCS": 0.0,
+      "SysPr": 1.0,
+      "Pulse rate": 0.22109540338242545,
+      "SM PY": 0.2477983487693264,
+      "smoker": -0.3497815286145937,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": -0.2751376032110127
+    },
+    "Pulse rate": {
+      "age": 0.14771458389014683,
+      "Sex": -0.25452182090174097,
+      "Pneumonia": -0.04785040554772503,
+      "PH": -0.12490737675131146,
+      "DiaPr": 0.3062892606086182,
+      "Respiratory rate": -0.3863358791863101,
+      "SPO2": -0.2290840841182317,
+      "GCS": 0.0,
+      "SysPr": 0.22109540338242545,
+      "Pulse rate": 1.0,
+      "SM PY": -0.6483865046282101,
+      "smoker": -0.11443680988069752,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.2260752644480167
+    },
+    "SM PY": {
+      "age": 0.5499887580475938,
+      "Sex": 0.4883720930232559,
+      "Pneumonia": 0.08414270081239915,
+      "PH": -0.08306130625284534,
+      "DiaPr": 0.20156595399059257,
+      "Respiratory rate": 0.6036553001376769,
+      "SPO2": 0.03821451286266037,
+      "GCS": 0.0,
+      "SysPr": 0.2477983487693264,
+      "Pulse rate": -0.6483865046282101,
+      "SM PY": 1.0,
+      "smoker": -0.19824776601088948,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": -0.569767441860465
+    },
+    "smoker": {
+      "age": -0.6581361696108721,
+      "Sex": -0.09578262852211514,
+      "Pneumonia": 0.23103639290316308,
+      "PH": 0.47119530429595174,
+      "DiaPr": -0.5792716166042461,
+      "Respiratory rate": -0.4844680358040826,
+      "SPO2": 0.08155311581457007,
+      "GCS": 0.0,
+      "SysPr": -0.3497815286145937,
+      "Pulse rate": -0.11443680988069752,
+      "SM PY": -0.19824776601088948,
+      "smoker": 1.0,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.19156525704423027
+    },
+    "ex sm years": {
+      "age": 0.0,
+      "Sex": 0.0,
+      "Pneumonia": 0.0,
+      "PH": 0.0,
+      "DiaPr": 0.0,
+      "Respiratory rate": 0.0,
+      "SPO2": 0.0,
+      "GCS": 0.0,
+      "SysPr": 0.0,
+      "Pulse rate": 0.0,
+      "SM PY": 0.0,
+      "smoker": 0.0,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.0
+    },
+    "hospitalizations": {
+      "age": 0.0,
+      "Sex": 0.0,
+      "Pneumonia": 0.0,
+      "PH": 0.0,
+      "DiaPr": 0.0,
+      "Respiratory rate": 0.0,
+      "SPO2": 0.0,
+      "GCS": 0.0,
+      "SysPr": 0.0,
+      "Pulse rate": 0.0,
+      "SM PY": 0.0,
+      "smoker": 0.0,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 0.0
+    },
+    "(MT)": {
+      "age": -0.4537009096007962,
+      "Sex": -5.551115123125783e-17,
+      "Pneumonia": 0.4522670168666454,
+      "PH": 0.20216808503051387,
+      "DiaPr": -0.3473768050705154,
+      "Respiratory rate": -0.2722780899222388,
+      "SPO2": 0.2630243121289714,
+      "GCS": 0.0,
+      "SysPr": -0.2751376032110127,
+      "Pulse rate": 0.2260752644480167,
+      "SM PY": -0.569767441860465,
+      "smoker": 0.19156525704423027,
+      "ex sm years": 0.0,
+      "hospitalizations": 0.0,
+      "(MT)": 1.0
+    }
+  },
+  "pca_analysis": {
+    "variance_explained": [
+      0.3531922674915326,
+      0.19122520164991297
+    ],
+    "components": [
+      {
+        "PC1": 2.9308437080035676,
+        "PC2": 2.194361958279333
+      },
+      {
+        "PC1": 2.7832757509849864,
+        "PC2": -2.912133977866386
+      },
+      {
+        "PC1": -2.6785729527962094,
+        "PC2": 2.097862448354186
+      },
+      {
+        "PC1": -0.07401274789710248,
+        "PC2": -0.8478056862767132
+      },
+      {
+        "PC1": 1.4333857680448432,
+        "PC2": -0.1425833851025454
+      },
+      {
+        "PC1": 0.031490309799052346,
+        "PC2": 0.7635884618586768
+      },
+      {
+        "PC1": -1.9172834521607875,
+        "PC2": -0.7221350553319057
+      },
+      {
+        "PC1": 1.3592581810232174,
+        "PC2": 0.6668598792326292
+      },
+      {
+        "PC1": -3.313508742253948,
+        "PC2": -1.6350730606891646
+      },
+      {
+        "PC1": -0.5548758227476218,
+        "PC2": 0.5370584175418891
+      }
+    ],
+    "feature_weights": {
+      "age": {
+        "PC1": 0.3986724003652919,
+        "PC2": -0.03063993013183831
+      },
+      "Sex": {
+        "PC1": 0.2433145485505816,
+        "PC2": -0.21181797912699646
+      },
+      "Pneumonia": {
+        "PC1": -0.08804211199756347,
+        "PC2": -0.15995044874505293
+      },
+      "PH": {
+        "PC1": -0.3403606987075649,
+        "PC2": -0.27731635870857835
+      },
+      "DiaPr": {
+        "PC1": 0.42189643357400713,
+        "PC2": 0.23054895062574943
+      },
+      "Respiratory rate": {
+        "PC1": 0.2786406119798352,
+        "PC2": -0.2831520221196829
+      },
+      "SPO2": {
+        "PC1": -0.2651115167783329,
+        "PC2": -0.3112679316206926
+      },
+      "GCS": {
+        "PC1": -4.235164736271502e-22,
+        "PC2": 0.0
+      },
+      "SysPr": {
+        "PC1": 0.27198215319327346,
+        "PC2": 0.054549075588647265
+      },
+      "Pulse rate": {
+        "PC1": -0.004975191932714914,
+        "PC2": 0.5668664622647647
+      },
+      "SM PY": {
+        "PC1": 0.2756269919419209,
+        "PC2": -0.5182429060694964
+      },
+      "smoker": {
+        "PC1": -0.32997116733455367,
+        "PC2": -0.07833941936026988
+      },
+      "ex sm years": {
+        "PC1": 0.0,
+        "PC2": 0.0
+      },
+      "hospitalizations": {
+        "PC1": 0.0,
+        "PC2": 0.0
+      },
+      "(MT)": {
+        "PC1": -0.27109033025163704,
+        "PC2": 0.1498808060200254
+      }
+    }
+  },
+  "top_features": {
+    "VenDep": [
+      "PH",
+      "DiaPr",
+      "smoker",
+      "age",
+      "Respiratory rate"
+    ],
+    "ARF": [
+      "SPO2",
+      "smoker",
+      "(MT)",
+      "DiaPr",
+      "SysPr"
+    ],
+    "ARF_combo": [
+      "DiaPr",
+      "PH",
+      "smoker",
+      "SysPr",
+      "age"
+    ]
+  }
+}
