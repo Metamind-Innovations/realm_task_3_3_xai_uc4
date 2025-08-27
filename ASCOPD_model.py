@@ -1,20 +1,30 @@
 import subprocess
 import pandas as pd
 from pathlib import Path
+from typing import Literal
 from utils import load_csv, store_df_to_csv
 
 
 class DockerModelWrapper:
-    def __init__(self, in_mount: str, out_mount: str, docker_image: str = "forth_copd"):
+    def __init__(
+        self,
+        in_mount: str,
+        out_mount: str,
+        target: Literal["VenDep", "ARF", "Mortality"],
+        docker_image: str = "forth_copd",
+    ):
         """
         Args:
             docker_image (str): Name of the docker image (e.g., "forth_copd").
             in_mount (str): Local directory path to mount as /app/in in the container.
+            target (Literal["VenDep", "ARF", "Mortality"]): Target column name to search
+                                                            in Docker model output.
             out_mount (str): Local directory path to mount as /app/out in the container.
         """
         self.docker_image = docker_image
         self.in_mount = Path(in_mount)
         self.out_mount = Path(out_mount)
+        self.target = target
 
     def predict(self, X: pd.DataFrame) -> pd.DataFrame:
         """
@@ -59,7 +69,7 @@ class DockerModelWrapper:
         subprocess.run(cmd, check=True)
 
         # Read predictions
-        preds = load_csv(output_file)
+        preds = load_csv(output_file)[self.target]
 
         # Cleanup
         try:
