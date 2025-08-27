@@ -68,3 +68,15 @@ def load_json(path: Union[str, Path]) -> Dict[str, Any]:
         data = json.load(f)
 
     return data
+
+
+def store_df_to_csv(df: pd.DataFrame, path: Union[str, Path]) -> Path:
+    """
+    Save a pandas DataFrame to CSV.
+
+    Args:
+        df (pd.DataFrame): DataFrame to save.
+        path (Union[str, Path]): File path where the CSV will be written.
+    """
+
+    df.to_csv(path, index=False, header=True)
