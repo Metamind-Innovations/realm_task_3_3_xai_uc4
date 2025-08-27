@@ -201,8 +201,8 @@ def fairness_bias_analysis(
     actual_target: Union[str, Path],
     pred_target: Union[str, Path],
     target_col: str,
-    demographic_cols: Dict[str, str],
     output_path: Union[str, Path],
+    demographic_cols: Dict[str, str] = {"age": "age", "gender": "Sex"},
 ) -> Dict[str, Any]:
     """Run fairness and bias analysis using Equalized Odds and Demographic Parity.
 
@@ -214,10 +214,10 @@ def fairness_bias_analysis(
         tabular_data (Union[str, Path]): Path to the tabular dataset CSV.
         actual_target (Union[str, Path]): Path to CSV containing actual target labels.
         pred_target (Union[str, Path]): Path to CSV containing predicted target labels.
-        target_col (str): Column name of the target variable in both actual and predicted files.
-        demographic_cols (Dict[str, str]): Mapping of demographic keys to their corresponding
-                                           column names in the tabular data.
+        target_col (str): Column name of the target variable in both actual an
         output_path (Union[str, Path]): Path where the results JSON will be saved.
+        demographic_cols (Dict[str, str], optional): Mapping of demographic keys to their corresponding
+                        column names in the tabular data. Defaults to {"age": "age", "gender": "Sex"}.
 
     Returns:
         Dict[str, Any]: Dictionary containing calculated metrics.
@@ -305,7 +305,7 @@ def main():
     parser.add_argument(
         "--age_col",
         required=False,
-        default="Age",
+        default="age",
         help="Name of age column in the tabular data",
     )
     parser.add_argument(
@@ -315,13 +315,9 @@ def main():
         help="Name of gender column in the tabular data",
     )
     parser.add_argument(
-        "--subpopulation_col",
-        required=False,
-        default=None,
-        help="Name of subpopulation column in the tabular data",
-    )
-    parser.add_argument(
-        "--output", default="fairness_analysis.json", help="Output JSON file path"
+        "--output",
+        default="output/fairness_analysis.json",
+        help="Output JSON file path",
     )
 
     args = parser.parse_args()
@@ -331,11 +327,7 @@ def main():
         actual_target=Path(args.actual_target),
         pred_target=Path(args.pred_target),
         target_col=args.target_col,
-        demographic_cols={
-            "age": args.age_col,
-            "gender": args.gender_col,
-            "subpopulation": args.subpopulation_col,
-        },
+        # demographic_cols={"age": args.age_col, "gender": args.gender_col},
         output_path=Path(args.output),
     )
 
