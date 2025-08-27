@@ -129,26 +129,23 @@ def concat_dfs(df_list: List[pd.DataFrame]) -> pd.DataFrame:
     return pd.concat(df_list, axis=1)
 
 
-def compute_fpr_fnr(true: pd.Series, pred: pd.Series) -> Tuple[float, float]:
-    """Compute False Positive Rate (FPR) and False Negative Rate (FNR) for binary classification.
+def compute_fpr(true: pd.Series, pred: pd.Series) -> float:
+    """Compute False Positive Rate (FPR) for binary classification.
 
     Args:
         true (pd.Series): Ground truth binary labels (0/1).
         pred (pd.Series): Predicted binary labels (0/1).
 
     Returns:
-        Tuple[float, float]: A tuple containing:
-            - FPR: False Positive Rate = FP / (FP + TN)
-            - FNR: False Negative Rate = FN / (FN + TP)
+        float: False Positive Rate = FP / (FP + TN)
     """
 
     cm = confusion_matrix(true, pred)
     tn, fp, fn, tp = cm.ravel()
 
     fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
-    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0
 
-    return fpr, fnr
+    return fpr
 
 
 def calculate_metric(
@@ -185,12 +182,11 @@ def calculate_metric(
 
             # Check which analysis is requested
             if analysis == "equalized_odds":
-                fpr, fnr = compute_fpr_fnr(
+                fpr = compute_fpr(
                     true=spec_cat_data["actual"], pred=spec_cat_data["pred"]
                 )
                 analysis_results = {
                     "false_positive_rate": fpr,
-                    "false_negative_rate": fnr,
                 }
             elif analysis == "demographic_parity":
                 analysis_results = spec_cat_data["pred"].mean()
