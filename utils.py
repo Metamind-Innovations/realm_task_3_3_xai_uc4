@@ -1,6 +1,6 @@
 import pandas as pd
 import json
-from typing import Any, Union, Optional
+from typing import Any, Union, Optional, Dict
 from pathlib import Path
 
 
@@ -42,3 +42,29 @@ def store_json(data: Any, path: Union[str, Path]) -> None:
 
     with open(path, "w") as f:
         json.dump(data, f, indent=4)
+
+
+def load_json(path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Load a JSON file into a Python dictionary.
+
+    Args:
+        path (str | Path): Path to the JSON file.
+
+    Returns:
+        dict: Parsed JSON content.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file is not a valid JSON.
+    """
+
+    path = Path(path)
+
+    if not path.exists():
+        raise FileNotFoundError(f"JSON file not found: {path}")
+
+    with open(path, "r") as f:
+        data = json.load(f)
+
+    return data
