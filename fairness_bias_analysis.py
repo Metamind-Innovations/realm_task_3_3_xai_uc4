@@ -327,7 +327,7 @@ def main():
         actual_target=Path(args.actual_target),
         pred_target=Path(args.pred_target),
         target_col=args.target_col,
-        # demographic_cols={"age": args.age_col, "gender": args.gender_col},
+        demographic_cols={"age": args.age_col, "gender": args.gender_col},
         output_path=Path(args.output),
     )
 
