@@ -3,28 +3,47 @@ import pandas as pd
 from pathlib import Path
 from typing import Literal
 from utils import load_csv, store_df_to_csv
+import uuid
 
 
 class DockerModelWrapper:
     def __init__(
         self,
-        in_mount: str,
-        out_mount: str,
         target: Literal["VenDep", "ARF", "Mortality"],
+        in_mount: str = "temp_mount",
+        out_mount: str = "temp_mount",
         docker_image: str = "forth_copd",
     ):
         """
         Args:
-            docker_image (str): Name of the docker image (e.g., "forth_copd").
-            in_mount (str): Local directory path to mount as /app/in in the container.
             target (Literal["VenDep", "ARF", "Mortality"]): Target column name to search
                                                             in Docker model output.
+            in_mount (str): Local directory path to mount as /app/in in the container.
+                            Defaults to `"temp_mount"`.
             out_mount (str): Local directory path to mount as /app/out in the container.
+                             Defaults to `"temp_mount"`.
+            docker_image (str): Name of the docker image (e.g., "forth_copd").
         """
         self.docker_image = docker_image
-        self.in_mount = Path(in_mount)
-        self.out_mount = Path(out_mount)
+        self.in_mount = Path(in_mount).resolve()
+        self.out_mount = Path(out_mount).resolve()
         self.target = target
+
+    def fit(self, X=None, y=None):
+        """
+        Fit method to satisfy scikit-learn interface requirements.
+        This method does nothing because the Dockerized model is already trained
+        and cannot be retrained from Python. It exists solely to allow usage with
+        scikit-learn utilities like permutation_importance that expect a fit method.
+
+        Args:
+            X: Input features. Defaults to `None`.
+            y: Target labels. Defaults to `None`.
+
+        Returns:
+            self: Returns the class instance.
+        """
+        return self
 
     def predict(self, X: pd.DataFrame) -> pd.DataFrame:
         """
@@ -34,6 +53,7 @@ class DockerModelWrapper:
         the mounted input directory, executes the Docker container with the
         model, and then reads back the predictions from the mounted output
         directory. Temporary input/output files are deleted after use.
+        The temp files have a unique identifier.
 
         Args:
             X (pd.DataFrame): Input features as a pandas DataFrame.
@@ -44,13 +64,16 @@ class DockerModelWrapper:
 
         self.in_mount.mkdir(parents=True, exist_ok=True)
         self.out_mount.mkdir(parents=True, exist_ok=True)
+        u_id = uuid.uuid4().hex
 
         # Save input data to a temp CSV inside input mount
-        input_file = self.in_mount / "temp_input.csv"
+        tmp_in_filename = f"temp_input_{u_id}.csv"
+        input_file = self.in_mount / tmp_in_filename
         store_df_to_csv(df=X, path=input_file)
 
         # Run docker container
-        output_file = self.out_mount / "temp_output.csv"
+        tmp_out_filename = f"temp_output_{u_id}.csv"
+        output_file = self.out_mount / tmp_out_filename
 
         cmd = [
             "docker",
@@ -62,9 +85,9 @@ class DockerModelWrapper:
             f"{self.out_mount}:/app/out",
             self.docker_image,
             "--input_data",
-            "/app/in/temp_input.csv",
+            f"/app/in/{tmp_in_filename}",
             "--output",
-            "/app/out/temp_output.csv",
+            f"/app/out/{tmp_out_filename}",
         ]
         subprocess.run(cmd, check=True)
 
@@ -78,4 +101,5 @@ class DockerModelWrapper:
         except Exception as e:
             print(f"Warning: could not delete temp files: {e}")
 
+        print("pred done")
         return preds

@@ -80,3 +80,18 @@ def store_df_to_csv(df: pd.DataFrame, path: Union[str, Path]) -> Path:
     """
 
     df.to_csv(path, index=False, header=True)
+
+
+def is_between(x: float, low: float = 0, high: float = 1) -> bool:
+    """
+    Check if a value lies within a closed interval [low, high].
+
+    Args:
+        x (float): The value to check.
+        low (float, optional): Lower bound of the interval. Defaults to 0.
+        high (float, optional): Upper bound of the interval. Defaults to 1.
+
+    Returns:
+        bool: True if `x` is between `low` and `high`, False otherwise.
+    """
+    return low <= x <= high
