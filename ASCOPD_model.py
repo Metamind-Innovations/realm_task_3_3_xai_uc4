@@ -101,5 +101,4 @@ class DockerModelWrapper:
         except Exception as e:
             print(f"Warning: could not delete temp files: {e}")
 
-        print("pred done")
         return preds

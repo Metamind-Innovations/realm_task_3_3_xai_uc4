@@ -1,14 +1,17 @@
 import argparse
-from typing import Dict, Literal, List, Any, Tuple
+from typing import Dict, Literal, List, Any, Tuple, Union
 import pandas as pd
 from pathlib import Path
 from sklearn.inspection import permutation_importance
+from sklearn.metrics import f1_score
 
 from ASCOPD_model import DockerModelWrapper
 from utils import is_between, load_csv, store_json
 
 
 RANDOM_STATE = 2025
+NUMBER_REPEATS = 5
+CATEGORICAL_COLUMNS = ["Sex"]
 
 
 def pass_checks(
@@ -83,19 +86,18 @@ def configure_model(
 
 
 def feature_permutation(
-    X: pd.DataFrame, y: pd.DataFrame, target: str
+    X: pd.DataFrame, y: pd.DataFrame, model: DockerModelWrapper
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
     Compute feature importance using permutation importance with a Dockerized model.
     This function wraps `sklearn.inspection.permutation_importance` to estimate how much
-    each feature contributes to model performance. It uses the given target column to
-    configure the model, evaluates feature importance with F1 scoring, and aggregates
-    results across multiple repeats.
+    each feature contributes to model performance. It evaluates feature importance
+    with F1 scoring, and aggregates results across multiple repeats.
 
     Args:
         X (pd.DataFrame): Input features used for prediction.
         y (pd.DataFrame): True target values corresponding to `X`.
-        target (str): Target column name used to configure the Dockerized model.
+        model (DockerModelWrapper): Dockerized model wrapper.
 
     Returns:
         Tuple[List[Dict[str, Any]], Dict[str, Any]]:
@@ -106,14 +108,12 @@ def feature_permutation(
               and standard deviation (`importances_std`).
     """
 
-    model = configure_model(target)
-
     importance_results = permutation_importance(
         estimator=model,
         X=X,
         y=y,
         scoring="f1",
-        n_repeats=5,
+        n_repeats=NUMBER_REPEATS,
         random_state=RANDOM_STATE,
         n_jobs=-1,
     )
@@ -132,9 +132,101 @@ def feature_permutation(
     return summary_results, importance_results
 
 
+def classification_score(
+    true: Union[pd.Series, list], pred: Union[pd.Series, list]
+) -> float:
+    """
+    Compute the F1 score for a binary or multiclass classification task.
+
+    Args:
+        true (Union[pd.Series, list]): Ground truth labels.
+        pred (Union[pd.Series, list]): Predicted labels.
+
+    Returns:
+        float: F1 score between true and predicted labels.
+    """
+
+    return f1_score(y_true=true, y_pred=pred)
+
+
+def feature_occlusion(
+    X: pd.DataFrame, y: pd.DataFrame, model: DockerModelWrapper
+) -> List[Dict[str, Any]]:
+    """
+    Compute feature importance using baseline occlusion for a DockerModelWrapper.
+    For each feature in `X`, the column is replaced with a baseline value:
+    - Categorical columns use the mode.
+    - Numerical columns use the mean.
+    The model predictions on the modified dataset are compared to the original predictions
+    using the F1 score. The drop in score is taken as the feature's occlusion importance.
+
+    Args:
+        X (pd.DataFrame): Input features used for prediction.
+        y (pd.DataFrame): True target labels corresponding to `X`.
+        model (DockerModelWrapper): Dockerized model wrapper.
+
+    Returns:
+        List[Dict[str, Any]]: List of dictionaries with each feature name and its occlusion importance.
+        Example: `[{"Feature": "age", "Occlusion_Importance": 0.12}, ...]`
+    """
+
+    baseline_pred = model.predict(X)
+    baseline_score = classification_score(true=y, pred=baseline_pred)
+
+    summary_results = []
+
+    for col in X.columns:
+        X_occlusion = X.copy()
+
+        replace_value = (
+            X[col].mode().iloc[0] if col in CATEGORICAL_COLUMNS else X[col].median()
+        )
+        X_occlusion[col] = replace_value
+
+        occlusion_pred = model.predict(X_occlusion)
+        occlusion_score = classification_score(true=y, pred=occlusion_pred)
+
+        occlusion_importance = baseline_score - occlusion_score
+
+        summary_results.append(
+            {"Feature": col, "Occlusion_Importance": occlusion_importance}
+        )
+
+    return summary_results
+
+
 def run_explainability_analysis(
-    tabular_data, actual_target, target_col, output_dir, sensitivity
-):
+    tabular_data: Union[str, Path],
+    actual_target: Union[str, Path],
+    target_col: str,
+    output_dir: Union[str, Path],
+    sensitivity: float,
+) -> List[Dict[str, Any]]:
+    """
+    Runs an explainability analysis on tabular data using either permutation importance
+    or baseline occlusion, depending on the specified sensitivity.
+    The function:
+        1. Loads tabular feature data and actual target labels.
+        2. Checks data consistency.
+        3. Selects the explainability method based on sensitivity.
+           - Low sensitivity (<0.5): Feature permutation
+           - High sensitivity (>=0.5): Baseline occlusion
+        4. Configures the Dockerized model.
+        5. Computes feature importances.
+        6. Stores detailed results (if applicable) and summary results as JSON.
+
+    Args:
+        tabular_data (Union[str, Path]): Path to CSV file containing input features.
+        actual_target (Union[str, Path]): Path to CSV file containing true target labels.
+        target_col (str): Name of the target column for the model.
+        output_dir (Path): Directory where results will be stored.
+        sensitivity (float): Sensitivity parameter (0 to 1) controlling the method selection.
+
+    Returns:
+        List[Dict[str, Any]]: Summary of feature importance results. Each dictionary contains:
+            - 'Feature': Feature name.
+            - 'Permutation_Importance' or 'Occlusion_Importance': Importance score.
+    """
 
     # Init results
     results = [{}]
@@ -151,20 +243,21 @@ def run_explainability_analysis(
     print(f"Using method: {method} based on sensitivity: {sensitivity}")
 
     # Perform analysis
+    model = configure_model(target_col)
+
     if method == "feature_permutation":
         results, detailed_results = feature_permutation(
-            X=tabular_data, y=actual_target, target=target_col
+            X=tabular_data, y=actual_target, model=model
         )
-
+        store_json(
+            data=detailed_results,
+            path=output_dir.joinpath(f"{method}_analysis_detailed_results.json"),
+        )
     elif method == "baseline_occlusion":
-        pass
+        results = feature_occlusion(X=tabular_data, y=actual_target, model=model)
 
-    # Store results to output dir
-    store_json(data=results, path=output_dir | f"{method}_analysis.json")
-    store_json(
-        data=detailed_results,
-        path=output_dir | f"{method}_analysis_detailed_results.json",
-    )
+    # Store summary results to output dir
+    store_json(data=results, path=output_dir.joinpath(f"{method}_analysis.json"))
 
 
 def main():
