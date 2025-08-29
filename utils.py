@@ -1,6 +1,6 @@
 import pandas as pd
 import json
-from typing import Any, Union, Optional, Dict
+from typing import Any, Union, Optional, Dict, List
 from pathlib import Path
 
 
@@ -95,3 +95,16 @@ def is_between(x: float, low: float = 0, high: float = 1) -> bool:
         bool: True if `x` is between `low` and `high`, False otherwise.
     """
     return low <= x <= high
+
+
+def concat_dfs(df_list: List[pd.DataFrame]) -> pd.DataFrame:
+    """Concatenate a list of DataFrames along columns (axis=1).
+
+    Args:
+        df_list (List[pd.DataFrame]): List of DataFrames to concatenate.
+
+    Returns:
+        pd.DataFrame: A single DataFrame with columns from all input DataFrames.
+    """
+
+    return pd.concat(df_list, axis=1)

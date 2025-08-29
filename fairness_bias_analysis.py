@@ -1,9 +1,9 @@
 import argparse
 import pandas as pd
 from sklearn.metrics import confusion_matrix
-from typing import Literal, Dict, List, Tuple, Any, Union
+from typing import Literal, Dict, Tuple, Any, Union
 from pathlib import Path
-from utils import load_csv, store_json
+from utils import load_csv, store_json, concat_dfs
 
 
 ANALYSIS_MAP = {
@@ -114,19 +114,6 @@ def age_to_cat(age_col: pd.Series) -> pd.Series:
     return pd.cut(
         age_col, bins=age_bins, labels=age_labels, include_lowest=True, right=True
     )
-
-
-def concat_dfs(df_list: List[pd.DataFrame]) -> pd.DataFrame:
-    """Concatenate a list of DataFrames along columns (axis=1).
-
-    Args:
-        df_list (List[pd.DataFrame]): List of DataFrames to concatenate.
-
-    Returns:
-        pd.DataFrame: A single DataFrame with columns from all input DataFrames.
-    """
-
-    return pd.concat(df_list, axis=1)
 
 
 def compute_fpr(true: pd.Series, pred: pd.Series) -> float:
