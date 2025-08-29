@@ -218,9 +218,6 @@ def fairness_bias_analysis(
         output_path (Union[str, Path]): Path where the results JSON will be saved.
         demographic_cols (Dict[str, str], optional): Mapping of demographic keys to their corresponding
                         column names in the tabular data. Defaults to {"age": "age", "gender": "Sex"}.
-
-    Returns:
-        Dict[str, Any]: Dictionary containing calculated metrics.
     """
 
     # Init results
@@ -234,7 +231,7 @@ def fairness_bias_analysis(
     if not pass_checks(
         tabular_data, actual_target, pred_target, target_col, demographic_cols
     ):
-        return results
+        raise ValueError(f"Inconsistent data provided. Check again the data provided.")
 
     tabular_data, actual_target, pred_target = prepare_data_for_analysis(
         tabular_data=tabular_data,

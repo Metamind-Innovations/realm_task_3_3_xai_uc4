@@ -221,11 +221,6 @@ def run_explainability_analysis(
         target_col (str): Name of the target column for the model.
         output_dir (Path): Directory where results will be stored.
         sensitivity (float): Sensitivity parameter (0 to 1) controlling the method selection.
-
-    Returns:
-        List[Dict[str, Any]]: Summary of feature importance results. Each dictionary contains:
-            - 'Feature': Feature name.
-            - 'Permutation_Importance' or 'Occlusion_Importance': Importance score.
     """
 
     # Init results
@@ -237,7 +232,7 @@ def run_explainability_analysis(
     actual_target = load_csv(actual_target)
 
     if not pass_checks(tabular_data, actual_target, target_col):
-        return results
+        raise ValueError(f"Inconsistent data provided. Check again the data provided.")
 
     method = select_method(sensitivity)
     print(f"Using method: {method} based on sensitivity: {sensitivity}")
