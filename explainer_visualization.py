@@ -48,7 +48,7 @@ def plot_importances(
     title: str = "",
     xlabel: str = "",
     ylabel: str = "",
-    figsize: tuple[int, int] = (6, 4),
+    figsize: tuple[int, int] = (8, 4),
     output_path: str = None,
     show: bool = False,
 ) -> None:
