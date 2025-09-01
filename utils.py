@@ -2,6 +2,7 @@ import pandas as pd
 import json
 from typing import Any, Union, Optional, Dict, List
 from pathlib import Path
+import numpy as np
 
 
 def load_csv(file_path: Union[str, Path]) -> Optional[pd.DataFrame]:
@@ -29,6 +30,30 @@ def load_csv(file_path: Union[str, Path]) -> Optional[pd.DataFrame]:
         print(f"Error: Could not parse '{file_path}'.")
 
 
+class NumpyEncoder(json.JSONEncoder):
+    """JSON encoder for NumPy data types.
+    This encoder extends the standard :class:`json.JSONEncoder` to handle
+    NumPy-specific objects that are not JSON serializable by default.
+
+    Supported conversions:
+        - np.integer → int
+        - np.floating → float
+        - np.ndarray → list
+        - np.bool_ / bool → bool
+    """
+
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, (np.bool_, bool)):
+            return bool(obj)
+        return super(NumpyEncoder, self).default(obj)
+
+
 def store_json(data: Any, path: Union[str, Path]) -> None:
     """Store data as a JSON file.
 
@@ -41,7 +66,7 @@ def store_json(data: Any, path: Union[str, Path]) -> None:
     """
 
     with open(path, "w") as f:
-        json.dump(data, f, indent=4)
+        json.dump(data, f, indent=4, cls=NumpyEncoder)
 
 
 def load_json(path: Union[str, Path]) -> Dict[str, Any]:

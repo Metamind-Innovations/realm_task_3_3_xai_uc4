@@ -153,7 +153,7 @@ def feature_permutation(
     )
 
     importance_results = dict(importance_results)
-    importance_results["features"] = importance_results.columns.to_list()
+    importance_results["features"] = X.columns.to_list()
 
     return summary_results, importance_results
 
