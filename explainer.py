@@ -86,13 +86,36 @@ def select_method(sens: float) -> Literal["feature_permutation", "counterfactual
     return "feature_permutation" if sens < 0.5 else "counterfactuals"
 
 
+def data_imputation(data: pd.DataFrame) -> pd.DataFrame:
+    """Impute missing values in a DataFrame.
+    This function fills missing values in numerical columns with the median,
+    and in categorical columns with the mode (most frequent value).
+
+    Args:
+        data (pd.DataFrame): Input DataFrame containing numerical and categorical columns.
+
+    Returns:
+        pd.DataFrame: DataFrame with missing values imputed.
+    """
+
+    return data.apply(
+        lambda col: (
+            col.fillna(col.median())
+            if col.name in NUMERICAL_COLUMNS
+            else col.fillna(col.mode().iloc[0])
+        ),
+        axis=0,
+    )
+
+
 def feature_permutation(
     X: pd.DataFrame, y: pd.DataFrame, model: DockerModelWrapper
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
     Compute feature importance using permutation importance with a Dockerized model.
     This function wraps `sklearn.inspection.permutation_importance` to estimate how much
-    each feature contributes to model performance. It evaluates feature importance
+    each feature contributes to model performance. Missing values in X are
+    imputed (median for numerical, mode for categorical). It evaluates feature importance
     with F1 scoring, and aggregates results across multiple repeats.
 
     Args:
@@ -109,9 +132,11 @@ def feature_permutation(
               and standard deviation (`importances_std`).
     """
 
+    X_imputed = data_imputation(X)
+
     importance_results = permutation_importance(
         estimator=model,
-        X=X,
+        X=X_imputed,
         y=y,
         scoring="f1",
         n_repeats=NUMBER_REPEATS,
@@ -181,14 +206,7 @@ def counterfactuals(
         method="random",
     )
 
-    X_imputed = X.apply(
-        lambda col: (
-            col.fillna(col.median())
-            if col.name in NUMERICAL_COLUMNS
-            else col.fillna(col.mode().iloc[0])
-        ),
-        axis=0,
-    )
+    X_imputed = data_imputation(X)
 
     global_importance_score_obj = explainer.global_feature_importance(
         X_imputed,
