@@ -198,7 +198,7 @@ def counterfactuals(
         outcome_name=target_col,
     )
 
-    model = dice_ml.Model(model=model, backend="PYT")
+    model = dice_ml.Model(model=model, backend="sklearn")
 
     explainer = dice_ml.Dice(
         model_interface=model,
@@ -233,6 +233,8 @@ def run_explainability_analysis(
     target_col: str,
     output_dir: Union[str, Path],
     sensitivity: float,
+    docker_image: str,
+    in_docker_run: bool,
 ) -> List[Dict[str, Any]]:
     """
     Runs an explainability analysis on tabular data using either permutation importance
@@ -253,6 +255,8 @@ def run_explainability_analysis(
         target_col (str): Name of the target column for the model.
         output_dir (Path): Directory where results will be stored.
         sensitivity (float): Sensitivity parameter (0 to 1) controlling the method selection.
+        docker_image (str) : The docker image to run.
+        in_docker (bool) : Indicates if the script is being executed inside the container.
     """
 
     # Init results
@@ -269,19 +273,17 @@ def run_explainability_analysis(
     method = select_method(sensitivity)
     print(f"Using method: {method} based on sensitivity: {sensitivity}")
 
+    model = DockerModelWrapper(
+        target=target_col, docker_image=docker_image, in_docker_run=in_docker_run
+    )
+
     # Perform analysis
     if method == "feature_permutation":
-        model = DockerModelWrapper(target=target_col)
         results, detailed_results = feature_permutation(
             X=tabular_data, y=actual_target, model=model
         )
 
     elif method == "counterfactuals":
-        model = DockerModelWrapper(
-            target=target_col,
-            features=tabular_data.columns.to_list(),
-            internal_data_type="tensor",
-        )
         results, detailed_results = counterfactuals(
             X=tabular_data, y=actual_target, target_col=target_col, model=model
         )
@@ -292,6 +294,19 @@ def run_explainability_analysis(
         path=output_dir.joinpath(f"{method}_analysis_detailed_results.json"),
     )
     store_json(data=results, path=output_dir.joinpath(f"{method}_analysis.json"))
+
+
+def str2bool(v: Literal["True", "False"]) -> bool:
+    """
+    Convert a string 'True' or 'False' to a Python boolean.
+    Raises argparse.ArgumentTypeError if the input is invalid.
+    """
+    if v == "True":
+        return True
+    elif v == "False":
+        return False
+    else:
+        raise argparse.ArgumentTypeError("Boolean value expected: 'True' or 'False'")
 
 
 def main():
@@ -320,10 +335,24 @@ def main():
     )
 
     parser.add_argument(
+        "--docker_image",
+        type=str,
+        default="forth_copd",
+        help="The docker image to run for the model",
+    )
+
+    parser.add_argument(
         "--sensitivity",
         type=float,
         default=0.7,
         help="Sensitivity value (0-1): <0.5 uses permutation feature importance, >=0.5 uses counterfactuals",
+    )
+
+    parser.add_argument(
+        "--in_docker",
+        type=str2bool,
+        default=False,
+        help="Indicates if the script will be executed inside the container of the provided docker image",
     )
     args = parser.parse_args()
 
@@ -336,6 +365,8 @@ def main():
         target_col=args.target_col,
         output_dir=Path(args.output),
         sensitivity=args.sensitivity,
+        docker_image=args.docker_image,
+        in_docker_run=args.in_docker,
     )
 
 

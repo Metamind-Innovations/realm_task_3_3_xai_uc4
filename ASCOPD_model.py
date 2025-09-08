@@ -1,10 +1,9 @@
 import subprocess
 import pandas as pd
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal
 from utils import load_csv, store_df_to_csv
 import uuid
-import torch
 
 
 class DockerModelWrapper:
@@ -14,8 +13,7 @@ class DockerModelWrapper:
         in_mount: str = "temp_mount",
         out_mount: str = "temp_mount",
         docker_image: str = "forth_copd",
-        internal_data_type: Literal["dataframe", "tensor"] = "dataframe",
-        features: list = [],
+        in_docker_run: bool = False,
     ):
         """
         Wrapper for a Dockerized model to allow prediction from Python.
@@ -29,18 +27,14 @@ class DockerModelWrapper:
                 the container. Defaults to `"temp_mount"`.
             docker_image (str, optional): Name of the Docker image containing the model.
                 Defaults to `"forth_copd"`.
-            internal_data_type (Literal["dataframe", "tensor"], optional):
-                Indicates whether input/output should be pandas DataFrames or PyTorch tensors.
-                Defaults to `"dataframe"`.
-            features (list, optional): List of feature names if input is a tensor.
-                Defaults to empty list.
+            in_docker_run (str, optional): Indicates if the class runs inside the container.
+                Defaults to `False`.
         """
         self.docker_image = docker_image
         self.in_mount = Path(in_mount).resolve()
         self.out_mount = Path(out_mount).resolve()
         self.target = target
-        self.internal_data_type = internal_data_type
-        self.features = features
+        self.in_docker_run = in_docker_run
 
     def fit(self, X=None, y=None):
         """
@@ -58,30 +52,19 @@ class DockerModelWrapper:
         """
         return self
 
-    def predict(
-        self, X: Union[pd.DataFrame, torch.Tensor]
-    ) -> Union[pd.Series, torch.Tensor]:
+    def predict(self, X: pd.DataFrame) -> pd.Series:
         """
         Run the Dockerized model on the given input and return predictions.
-        This method saves the input to a temporary CSV, runs the Docker container,
-        reads back the output CSV, and optionally converts it to a tensor if required.
+        This method saves the input to a temporary CSV, runs the Docker container
+        and reads back the output CSV. Checks if the process is executed inside
+        the model container and runs the appropriate command.
 
         Args:
-            X (pd.DataFrame or torch.Tensor): Input features.
-
-        Raises:
-            ValueError: If `internal_data_type` is "tensor" but `features` are not provided.
+            X (pd.DataFrame): Input features.
 
         Returns:
-            pd.Series or torch.Tensor: Predictions corresponding to the target column.
+            pd.Series: Predictions corresponding to the target column.
         """
-
-        if (self.internal_data_type == "tensor") and (not self.features):
-            raise ValueError("Feature names need to be passed to model.")
-
-        # For tensor input
-        if isinstance(X, torch.Tensor):
-            X = pd.DataFrame(X.cpu().numpy(), columns=self.features)
 
         self.in_mount.mkdir(parents=True, exist_ok=True)
         self.out_mount.mkdir(parents=True, exist_ok=True)
@@ -96,28 +79,34 @@ class DockerModelWrapper:
         tmp_out_filename = f"temp_output_{u_id}.csv"
         output_file = self.out_mount / tmp_out_filename
 
-        cmd = [
-            "docker",
-            "run",
-            "--rm",
-            "-v",
-            f"{self.in_mount}:/app/in",
-            "-v",
-            f"{self.out_mount}:/app/out",
-            self.docker_image,
-            "--input_data",
-            f"/app/in/{tmp_in_filename}",
-            "--output",
-            f"/app/out/{tmp_out_filename}",
-        ]
+        if not self.in_docker_run:
+            cmd = [
+                "docker",
+                "run",
+                "--rm",
+                "-v",
+                f"{self.in_mount}:/app/in",
+                "-v",
+                f"{self.out_mount}:/app/out",
+                self.docker_image,
+                "--input_data",
+                f"/app/in/{tmp_in_filename}",
+                "--output",
+                f"/app/out/{tmp_out_filename}",
+            ]
+        else:
+            cmd = [
+                "/app/main",
+                "--input_data",
+                str(input_file),
+                "--output",
+                str(output_file),
+            ]
+
         subprocess.run(cmd, check=True)
 
         # Read predictions
         preds = load_csv(output_file)[self.target]
-
-        # If tensor is required from the process called the model
-        if self.internal_data_type == "tensor":
-            preds = torch.tensor(preds.values)
 
         # Cleanup
         try:
@@ -128,18 +117,15 @@ class DockerModelWrapper:
 
         return preds
 
-    def __call__(
-        self, X: Union[pd.DataFrame, torch.Tensor]
-    ) -> Union[pd.Series, torch.Tensor]:
+    def predict_proba(self, X):
         """
-        Allows the wrapper object to be called directly like a function.
-        It exists solely to allow usage with utilities that expect a __call__ method.
+        Method to satisfy scikit-learn backend interface
+        requirements for dice library.
 
         Args:
-            X (pd.DataFrame or torch.Tensor): Input features.
+            X (pd.DataFrame): Input features.
 
         Returns:
-            pd.Series or torch.Tensor: Model predictions.
+            pd.Series: Model predictions.
         """
-
         return self.predict(X)
