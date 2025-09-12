@@ -141,7 +141,7 @@ def visualize_fairness_bias_analysis(analysis_results: Path, output_dir: Path):
         plot_bar_chart(
             x=categories,
             y=values,
-            title=f"{metric} by {dem_name}",
+            title=f"{metric} ({dem_name} groups)",
             xlabel=dem_name,
             ylabel=metric,
             output_path=output_dir.joinpath(f"{dem_name}_{metric}.png"),
