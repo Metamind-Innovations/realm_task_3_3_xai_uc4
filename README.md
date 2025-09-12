@@ -359,10 +359,11 @@ Demographic Parity Plots:
 </p>
 
 ### Explainability Analysis Visualizations
-Feature Permutation Importance Plot:
-![Feature Permutation Importance](./media/Permutation%20Feature_Importance.png)
-Counterfactual Explanations Importance Plot:
-![Counterfactual Explanations Importance](./media/Counterfactuals_Importance.png)
+Feature Permutation Importance and Counterfactual Explanations Importance Plots
+<p align="center">
+  <img src="./media/Permutation%20Feature_Importance.png" width="49%"/>
+  <img src="./media/Counterfactuals_Importance.png" width="49%"/>
+</p>
 
 
 ## Understanding the Results
