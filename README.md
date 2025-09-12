@@ -25,7 +25,7 @@ Additionally, it includes fairness/bias analysis to detect potential biases acro
 
 The provided model takes an input clinical biomedical data and predicts as output the inpatient risk for COPD and ASTHMA patients. This project adds and explainability layer, allowing users to understand why the model makes certain predictions.
 
-**IMPORTANT**: For this use case we are using a dockerized model for prediction. The model outputs are class labels (0, 1) and we do not have access to the model internals (weights, architecture, etc.) and probabilities. The model takes as input a CDV files with the tabular data and outputs a CSV file with the predictions. This is a limitation for some XAI techniques, like SHAP or LIME, as they require access to model internals or probabilities to generate explanations.
+**IMPORTANT**: For this use case we are using a dockerized model for prediction. The model outputs are class labels (0, 1) and we do not have access to the model internals (weights, architecture, etc.) and probabilities. The model takes as input a CSV files with the tabular data and outputs a CSV file with the predictions. This is a limitation for some XAI techniques, like SHAP or LIME, as they require access to model internals or probabilities to generate explanations.
 
 Key Components:
 1. Input Data: The input data is a CSV file containing clinical biomedical data for COPD and ASTHMA patients. Each row represents a patient, and each column represents a feature. More details about the data can be found in the Data Structure section below.
@@ -345,12 +345,18 @@ If the sensitivity value is 0.5 or higher, counterfactual explanations are appli
 ## Visualizations Output
 
 ### Fairness and Bias Analysis Visualizations
+
 Equalized Odds Plots:
-![Equalized Odds Age](./media/age_false_positive_rate.png)
-![Equalized Odds Sex](./media/Sex_false_positive_rate.png)
+<p align="center">
+  <img src="./media/age_false_positive_rate.png" width="49%"/>
+  <img src="./media/Sex_false_positive_rate.png" width="49%"/>
+</p>
+
 Demographic Parity Plots:
-![Demographic Parity Age](./media/age_prediction_rates_by_group.png)
-![Demographic Parity Sex](./media/Sex_prediction_rates_by_group.png)
+<p align="center">
+  <img src="./media/age_prediction_rates_by_group.png" width="49%"/>
+  <img src="./media/Sex_prediction_rates_by_group.png" width="49%"/>
+</p>
 
 ### Explainability Analysis Visualizations
 Feature Permutation Importance Plot:
