@@ -11,6 +11,8 @@ AGE_COLORS = {
     '70+': '#E78AC3'
 }
 
+AGE_GROUPS = ['<40', '40-54', '55-69', '70+']
+
 SEX_COLORS = {
     '0.0': '#FF69B4',
     '1.0': '#4169E1'
@@ -68,8 +70,9 @@ def create_consolidated_visualization(data: Dict, demographic_key: str, output_d
     color_map = AGE_COLORS if demographic_key == 'age' else SEX_COLORS
 
     if fpr_data:
-        groups = list(fpr_data.keys())
-        values = list(fpr_data.values())
+        groups = sorted(fpr_data.keys(), key=lambda x: (
+            AGE_GROUPS.index(x) if x in AGE_GROUPS else 999) if demographic_key == 'age' else x)
+        values = [fpr_data[g] for g in groups]
         colors = [color_map.get(g, '#4ECDC4') for g in groups]
 
         bars = axes[0].bar(groups, values, color=colors)
@@ -95,8 +98,9 @@ def create_consolidated_visualization(data: Dict, demographic_key: str, output_d
         axes[0].axis('off')
 
     if prediction_data:
-        groups = list(prediction_data.keys())
-        values = list(prediction_data.values())
+        groups = sorted(prediction_data.keys(), key=lambda x: (
+            AGE_GROUPS.index(x) if x in AGE_GROUPS else 999) if demographic_key == 'age' else x)
+        values = [prediction_data[g] for g in groups]
         colors = [color_map.get(g, '#4ECDC4') for g in groups]
 
         bars = axes[1].bar(groups, values, color=colors)
