@@ -9,12 +9,11 @@ from utils import load_json
 def is_feature_permulation_results(data: list) -> bool:
     """Check if the input list corresponds to feature permutation results.
 
-    Args:
-        data (list): Input list of dicts, where the elements are expected to contain
-                     the string 'Permutation_Importance' if it is permutation results.
-
-    Returns:
-        bool: True if 'Permutation_Importance' is found in the first dict of the list, False otherwise.
+    :param data: Input list of dicts, where the elements are expected to contain
+                 the string 'Permutation_Importance' if it is permutation results.
+    :type data: list
+    :returns: True if 'Permutation_Importance' is found in the first dict of the list, False otherwise.
+    :rtype: bool
     """
 
     return (
@@ -27,12 +26,11 @@ def is_feature_permulation_results(data: list) -> bool:
 def is_counterfactuals(data: list) -> bool:
     """Check if the input list corresponds to counterfactuals results.
 
-    Args:
-        data (list): Input list of dicts, where the elements are expected to contain
-                     the string 'Counterfactuals_Importance' if it is counterfactuals results.
-
-    Returns:
-        bool: True if 'Counterfactuals_Importance' is found in the first dict of the list, False otherwise.
+    :param data: Input list of dicts, where the elements are expected to contain
+                 the string 'Counterfactuals_Importance' if it is counterfactuals results.
+    :type data: list
+    :returns: True if 'Counterfactuals_Importance' is found in the first dict of the list, False otherwise.
+    :rtype: bool
     """
 
     return (
@@ -43,29 +41,39 @@ def is_counterfactuals(data: list) -> bool:
 
 
 def plot_importances(
-    features: Union[list, pd.Series],
-    importances: Union[list, pd.Series],
-    title: str = "",
-    xlabel: str = "",
-    ylabel: str = "",
-    figsize: tuple[int, int] = (8, 4),
-    output_path: str = None,
-    show: bool = False,
+        features: Union[list, pd.Series],
+        importances: Union[list, pd.Series],
+        title: str = "",
+        xlabel: str = "",
+        ylabel: str = "",
+        figsize: tuple[int, int] = (8, 4),
+        output_path: str = None,
+        show: bool = False,
+        explanation_text: str = None,
 ) -> None:
     """Plot a horizontal bar chart of feature importances with annotations.
     Features and importances can be provided as lists or pandas Series.
     The function adds a small space after the longest bar and annotates each bar
     with its importance value.
 
-    Args:
-        features (list or pd.Series): Names of the features.
-        importances (list or pd.Series): Importance values corresponding to the features.
-        title (str, optional): Plot title. Defaults to "".
-        xlabel (str, optional): Label for the x-axis. Defaults to "".
-        ylabel (str, optional): Label for the y-axis. Defaults to "".
-        figsize (tuple[int, int], optional): Figure size in inches. Defaults to (6, 4).
-        output_path (str, optional): File path to save the plot. If None, does not save.
-        show (bool, optional): Whether to display the plot interactively. Defaults to False.
+    :param features: Names of the features.
+    :type features: list or pd.Series
+    :param importances: Importance values corresponding to the features.
+    :type importances: list or pd.Series
+    :param title: Plot title. Defaults to "".
+    :type title: str, optional
+    :param xlabel: Label for the x-axis. Defaults to "".
+    :type xlabel: str, optional
+    :param ylabel: Label for the y-axis. Defaults to "".
+    :type ylabel: str, optional
+    :param figsize: Figure size in inches. Defaults to (6, 4).
+    :type figsize: tuple[int, int], optional
+    :param output_path: File path to save the plot. If None, does not save.
+    :type output_path: str, optional
+    :param show: Whether to display the plot interactively. Defaults to False.
+    :type show: bool, optional
+    :param explanation_text: Explanatory text to display below the plot. Defaults to None.
+    :type explanation_text: str, optional
     """
 
     plt.figure(figsize=figsize)
@@ -77,19 +85,37 @@ def plot_importances(
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
-    xmax = max(importances) * 1.12
-    plt.xlim(0, xmax)
+    xmin = min(importances)
+    xmax = max(importances)
+    x_range = xmax - xmin
+
+    xlim_min = xmin - (x_range * 0.12) if xmin < 0 else 0
+    xlim_max = xmax + (x_range * 0.12) if xmax > 0 else 0
+
+    plt.xlim(xlim_min, xlim_max)
 
     for bar, val in zip(bars, importances):
+        if val >= 0:
+            text_x = val + (x_range * 0.01)
+            text_ha = "left"
+        else:
+            text_x = val - (x_range * 0.01)
+            text_ha = "right"
+
         plt.text(
-            val + (xmax * 0.01),  # slight offset to the right of the bar
+            text_x,
             bar.get_y() + bar.get_height() / 2,
             f"{val:.2f}",
             va="center",
-            ha="left",
+            ha=text_ha,
         )
 
-    plt.tight_layout()
+    if explanation_text:
+        plt.figtext(0.5, 0.02, explanation_text, ha='center', fontsize=10,
+                    style='italic', color='#555555', wrap=True)
+        plt.tight_layout(rect=[0, 0.06, 1, 1])
+    else:
+        plt.tight_layout()
 
     if output_path:
         plt.savefig(output_path, dpi=300, bbox_inches="tight")
@@ -106,25 +132,40 @@ def visualize_explanations(analysis_results: Path, output_dir: Path) -> None:
     are from permutation feature importance or counterfactual analysis, sorts the features
     by importance, and creates a horizontal bar plot with annotated importance values.
 
-    Args:
-        analysis_results (str or Path): Path to the JSON file containing analysis results.
-        output_dir (str or Path): Directory where the generated plots will be saved.
-
-    Raises:
-        ValueError: If the input data does not contain expected keys for permutation feature
-                    importance or counterfactual analysis.
+    :param analysis_results: Path to the JSON file containing analysis results.
+    :type analysis_results: str or Path
+    :param output_dir: Directory where the generated plots will be saved.
+    :type output_dir: str or Path
+    :raises ValueError: If the input data does not contain expected keys for permutation feature
+                        importance or counterfactual analysis.
     """
 
-    analysis_results = load_json(analysis_results)
+    raw_data = load_json(analysis_results)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    sensitivity = None
+    method_from_metadata = None
+
+    if isinstance(raw_data, dict) and "results" in raw_data:
+        metadata = raw_data.get("metadata", {})
+        sensitivity = metadata.get("sensitivity")
+        method_from_metadata = metadata.get("method")
+        analysis_results = raw_data["results"]
+    else:
+        analysis_results = raw_data
+
     if is_feature_permulation_results(analysis_results):
-        method = "Permutation Feature"
+        method = "feature_permutation" if method_from_metadata is None else method_from_metadata
         sort_column = "Permutation_Importance"
+        explanation_text = ("Positive values indicate features that improve model performance; "
+                            "Negative values indicate features that degrade model performance when used by the model.")
     elif is_counterfactuals(analysis_results):
-        method = "Counterfactuals"
+        method = "counterfactuals" if method_from_metadata is None else method_from_metadata
         sort_column = "Counterfactuals_Importance"
+        explanation_text = (
+            "Shows which characteristics would need to change to alter the ventilator dependence prediction; "
+            "higher values indicate features that are key drivers of the model's decisions")
     else:
         raise ValueError(
             "Invalid data passed. Expected keys were not found in analysis results."
@@ -136,13 +177,21 @@ def visualize_explanations(analysis_results: Path, output_dir: Path) -> None:
     features = analysis_results["Feature"].to_list()
     importances = analysis_results[sort_column].to_list()
 
+    if sensitivity is not None and method_from_metadata is not None:
+        formatted_method = method_from_metadata.replace('_', ' ').title()
+        title = f'Sensitivity [0,1]: {sensitivity}, Methodology: {formatted_method}'
+    else:
+        formatted_method = method.replace('_', ' ').title()
+        title = f"{formatted_method} Importance Analysis"
+
     plot_importances(
         features=features,
         importances=importances,
-        title=f"{method} Importance Analysis",
+        title=title,
         xlabel="Importance",
         ylabel="Feature",
-        output_path=output_dir.joinpath(f"{method}_Importance.png"),
+        output_path=output_dir.joinpath(f"{method.replace('_', ' ').title()} Importance.png"),
+        explanation_text=explanation_text,
     )
 
     print(f"Plots stored in {output_dir}")

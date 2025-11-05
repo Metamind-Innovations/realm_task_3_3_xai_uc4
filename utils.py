@@ -8,15 +8,10 @@ import numpy as np
 def load_csv(file_path: Union[str, Path]) -> Optional[pd.DataFrame]:
     """Load a CSV file into a pandas DataFrame.
 
-    Args:
-        file_path (Union[str, Path]): Path to the CSV file.
-
-    Returns:
-        Optional[pd.DataFrame]: Data from the CSV file if successful,
-        otherwise None if an error occurs.
-
-    Raises:
-        None: Errors are caught and printed instead of raised.
+    :param file_path: Path to the CSV file.
+    :type file_path: Union[str, Path]
+    :returns: Data from the CSV file if successful, otherwise None if an error occurs.
+    :rtype: Optional[pd.DataFrame]
     """
 
     try:
@@ -57,12 +52,10 @@ class NumpyEncoder(json.JSONEncoder):
 def store_json(data: Any, path: Union[str, Path]) -> None:
     """Store data as a JSON file.
 
-    Args:
-        data (Any): The data to be serialized into JSON.
-        path (Union[str, Path]): The file path where the JSON will be stored.
-
-    Returns:
-        None
+    :param data: The data to be serialized into JSON.
+    :type data: Any
+    :param path: The file path where the JSON will be stored.
+    :type path: Union[str, Path]
     """
 
     with open(path, "w") as f:
@@ -70,18 +63,14 @@ def store_json(data: Any, path: Union[str, Path]) -> None:
 
 
 def load_json(path: Union[str, Path]) -> Dict[str, Any]:
-    """
-    Load a JSON file into a Python dictionary.
+    """Load a JSON file into a Python dictionary.
 
-    Args:
-        path (str | Path): Path to the JSON file.
-
-    Returns:
-        dict: Parsed JSON content.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        json.JSONDecodeError: If the file is not a valid JSON.
+    :param path: Path to the JSON file.
+    :type path: str | Path
+    :returns: Parsed JSON content.
+    :rtype: dict
+    :raises FileNotFoundError: If the file does not exist.
+    :raises json.JSONDecodeError: If the file is not a valid JSON.
     """
 
     path = Path(path)
@@ -96,28 +85,28 @@ def load_json(path: Union[str, Path]) -> Dict[str, Any]:
 
 
 def store_df_to_csv(df: pd.DataFrame, path: Union[str, Path]) -> Path:
-    """
-    Save a pandas DataFrame to CSV.
+    """Save a pandas DataFrame to CSV.
 
-    Args:
-        df (pd.DataFrame): DataFrame to save.
-        path (Union[str, Path]): File path where the CSV will be written.
+    :param df: DataFrame to save.
+    :type df: pd.DataFrame
+    :param path: File path where the CSV will be written.
+    :type path: Union[str, Path]
     """
 
     df.to_csv(path, index=False, header=True)
 
 
 def is_between(x: float, low: float = 0, high: float = 1) -> bool:
-    """
-    Check if a value lies within a closed interval [low, high].
+    """Check if a value lies within a closed interval [low, high].
 
-    Args:
-        x (float): The value to check.
-        low (float, optional): Lower bound of the interval. Defaults to 0.
-        high (float, optional): Upper bound of the interval. Defaults to 1.
-
-    Returns:
-        bool: True if `x` is between `low` and `high`, False otherwise.
+    :param x: The value to check.
+    :type x: float
+    :param low: Lower bound of the interval. Defaults to 0.
+    :type low: float, optional
+    :param high: Upper bound of the interval. Defaults to 1.
+    :type high: float, optional
+    :returns: True if `x` is between `low` and `high`, False otherwise.
+    :rtype: bool
     """
     return low <= x <= high
 
@@ -125,11 +114,10 @@ def is_between(x: float, low: float = 0, high: float = 1) -> bool:
 def concat_dfs(df_list: List[pd.DataFrame]) -> pd.DataFrame:
     """Concatenate a list of DataFrames along columns (axis=1).
 
-    Args:
-        df_list (List[pd.DataFrame]): List of DataFrames to concatenate.
-
-    Returns:
-        pd.DataFrame: A single DataFrame with columns from all input DataFrames.
+    :param df_list: List of DataFrames to concatenate.
+    :type df_list: List[pd.DataFrame]
+    :returns: A single DataFrame with columns from all input DataFrames.
+    :rtype: pd.DataFrame
     """
 
     return pd.concat(df_list, axis=1)

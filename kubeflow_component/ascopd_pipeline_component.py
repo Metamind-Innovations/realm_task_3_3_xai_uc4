@@ -7,10 +7,10 @@ from kfp.dsl import Input, Output, Dataset, Model
 # -----------------------
 @dsl.component(base_image="python:3.13-slim")
 def download_repo(
-    github_repo_url: str,
-    project_files: Output[Model],
-    data: Output[Dataset],
-    branch: str = "main",
+        github_repo_url: str,
+        project_files: Output[Model],
+        data: Output[Dataset],
+        branch: str = "main",
 ) -> None:
     """Download specific scripts and data from a GitHub repository.
     This component clones a GitHub repository, copies selected Python scripts
@@ -53,6 +53,8 @@ def download_repo(
         "ASCOPD_model.py",
         "explainer.py",
         "fairness_bias_analysis.py",
+        "explainer_visualization.py",
+        "fairness_bias_visualization.py",
         "utils.py",
     ]
 
@@ -84,10 +86,10 @@ def download_repo(
     packages_to_install=["pandas==2.3.2", "scikit-learn==1.7.1"],
 )
 def fairness_analysis(
-    project_files: Input[Model],
-    data: Input[Dataset],
-    fairness_results: Output[Dataset],
-    target_col: str,
+        project_files: Input[Model],
+        data: Input[Dataset],
+        fairness_results: Output[Dataset],
+        target_col: str,
 ) -> None:
     """Run fairness and bias analysis using the ASCOPD model.
     This component installs required Python packages, executes the
@@ -139,7 +141,8 @@ def fairness_analysis(
 # Step 3: Explainer Analysis
 # -----------------------
 @dsl.component(
-    base_image="docker.io/username/reponame:latest",
+    # Insert your dockerhub image below (e.g. base_image="docker.io/<username>/<image_name>:<tag>")
+    base_image="<your_dockerhub_image>",
     packages_to_install=[
         "pandas==2.3.2",
         "scikit-learn==1.7.1",
@@ -147,11 +150,11 @@ def fairness_analysis(
     ],
 )
 def explainer_analysis(
-    project_files: Input[Model],
-    data: Input[Dataset],
-    explainer_results: Output[Dataset],
-    sensitivity: float,
-    target_col: str,
+        project_files: Input[Model],
+        data: Input[Dataset],
+        explainer_results: Output[Dataset],
+        sensitivity: float,
+        target_col: str,
 ) -> None:
     """Run explainer analysis on the ASCOPD model using Docker.
     This component installs Docker and required Python packages, pulls the specified
@@ -202,6 +205,135 @@ def explainer_analysis(
     print(f"Explainer analysis finished. Results saved to {results_path}")
 
 
+@dsl.component(
+    base_image="python:3.13-slim",
+    packages_to_install=["pandas==2.3.2", "matplotlib==3.10.5"],
+)
+def explainer_visualization(
+        project_files: Input[Model],
+        explainer_results: Input[Dataset],
+        visualizations: Output[Dataset],
+) -> None:
+    """Generate visualizations for explainer analysis results.
+    This component executes the `explainer_visualization.py` script to create
+    visual representations of feature importance from explainer results.
+
+    :param project_files: Input path containing project scripts.
+    :param explainer_results: Input path containing explainer analysis JSON results.
+    :param visualizations: Output path for generated visualization images.
+    """
+    from pathlib import Path
+    import subprocess
+    import os
+
+    proj_path = Path(project_files.path)
+    results_path = Path(explainer_results.path)
+    viz_path = Path(visualizations.path)
+    viz_path.mkdir(parents=True, exist_ok=True)
+
+    script = proj_path / "explainer_visualization.py"
+    if not script.exists():
+        raise FileNotFoundError(f"Visualization script not found at {script}")
+
+    json_files = list(results_path.glob("*_analysis.json"))
+    if not json_files:
+        raise FileNotFoundError(f"No analysis JSON files found in {results_path}")
+
+    analysis_file = json_files[0]
+    print(f"Found explainer results: {analysis_file}")
+
+    env = os.environ.copy()
+    env['MPLBACKEND'] = 'Agg'
+
+    output_dir = viz_path / "explainer"
+
+    cmd = [
+        "python",
+        str(script),
+        "--analysis_results",
+        str(analysis_file),
+        "--output",
+        str(output_dir),
+    ]
+
+    print(f"Running explainer visualization with {script}")
+    result = subprocess.run(cmd, check=True, capture_output=True, text=True, env=env)
+
+    if result.stdout:
+        print(f"STDOUT:\n{result.stdout}")
+    if result.stderr:
+        print(f"STDERR:\n{result.stderr}")
+
+    print(f"Explainer visualization finished. Results saved to {output_dir}")
+
+
+@dsl.component(
+    base_image="python:3.13-slim",
+    packages_to_install=["pandas==2.3.2", "matplotlib==3.10.5", "seaborn==0.13.2"],
+)
+def fairness_bias_visualization(
+        project_files: Input[Model],
+        fairness_results: Input[Dataset],
+        visualizations: Output[Dataset],
+) -> None:
+    """Generate visualizations for fairness and bias analysis results.
+    This component executes the `fairness_bias_visualization.py` script to create
+    visual representations of fairness metrics.
+
+    :param project_files: Input path containing project scripts.
+    :param fairness_results: Input path containing fairness analysis JSON results.
+    :param visualizations: Output path for generated visualization images.
+    """
+    from pathlib import Path
+    import subprocess
+    import os
+
+    proj_path = Path(project_files.path)
+    results_path = Path(fairness_results.path)
+    viz_path = Path(visualizations.path)
+    fairness_viz_path = viz_path / "fairness_bias"
+    fairness_viz_path.mkdir(parents=True, exist_ok=True)
+
+    script = proj_path / "fairness_bias_visualization.py"
+    if not script.exists():
+        raise FileNotFoundError(f"Fairness visualization script not found at {script}")
+
+    analysis_results_file = results_path / "fairness_analysis.json"
+    if not analysis_results_file.exists():
+        json_files = list(results_path.glob("*.json"))
+        if not json_files:
+            raise FileNotFoundError(f"No JSON files found in {results_path}")
+        analysis_results_file = json_files[0]
+
+    print(f"Found fairness results: {analysis_results_file}")
+
+    env = os.environ.copy()
+    env['MPLBACKEND'] = 'Agg'
+
+    cmd = [
+        "python",
+        str(script),
+        "--analysis_results",
+        str(analysis_results_file),
+        "--output",
+        str(fairness_viz_path),
+    ]
+
+    print(f"Running fairness visualization with {script}")
+    result = subprocess.run(cmd, check=True, capture_output=True, text=True, env=env)
+
+    if result.stdout:
+        print(f"STDOUT:\n{result.stdout}")
+    if result.stderr:
+        print(f"STDERR:\n{result.stderr}")
+
+    png_files = list(fairness_viz_path.glob("*.png"))
+    if not png_files:
+        raise FileNotFoundError(f"No visualization PNG files found in {fairness_viz_path}")
+
+    print(f"Fairness visualization finished. {len(png_files)} images saved to {fairness_viz_path}")
+
+
 # -----------------------
 # -----------------------
 # Define Pipeline
@@ -212,10 +344,10 @@ def explainer_analysis(
     description="Runs fairness-bias and explainer analyses.",
 )
 def ascopd_pipeline(
-    github_repo_url: str,
-    target_col: str,
-    branch: str = "main",
-    sensitivity: float = 0.7,
+        github_repo_url: str,
+        target_col: str,
+        branch: str = "main",
+        sensitivity: float = 0.7,
 ):
     """Pipeline to run ASCOPD model fairness/bias and explainer analyses.
 
@@ -258,6 +390,27 @@ def ascopd_pipeline(
     explainer_task.set_cpu_request("6000m")
     explainer_task.set_cpu_limit("6000m")
     explainer_task.set_memory_request("12Gi")
+    explainer_task.set_memory_limit("14Gi")
+
+    explainer_viz_task = explainer_visualization(
+        project_files=repo_task.outputs["project_files"],
+        explainer_results=explainer_task.outputs["explainer_results"],
+    )
+    explainer_viz_task.set_caching_options(False)
+    explainer_viz_task.set_cpu_request("2000m")
+    explainer_viz_task.set_cpu_limit("4000m")
+    explainer_viz_task.set_memory_request("4Gi")
+    explainer_viz_task.set_memory_limit("6Gi")
+
+    fairness_viz_task = fairness_bias_visualization(
+        project_files=repo_task.outputs["project_files"],
+        fairness_results=fairness_task.outputs["fairness_results"],
+    )
+    fairness_viz_task.set_caching_options(False)
+    fairness_viz_task.set_cpu_request("2000m")
+    fairness_viz_task.set_cpu_limit("4000m")
+    fairness_viz_task.set_memory_request("4Gi")
+    fairness_viz_task.set_memory_limit("6Gi")
 
 
 if __name__ == "__main__":
