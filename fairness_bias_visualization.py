@@ -2,162 +2,158 @@ import argparse
 from pathlib import Path
 import matplotlib.pyplot as plt
 from utils import load_json
-from typing import Dict, Tuple, List
+from typing import Dict
+
+AGE_COLORS = {
+    '<40': '#66C2A5',
+    '40-54': '#FC8D62',
+    '55-69': '#8DA0CB',
+    '70+': '#E78AC3'
+}
+
+SEX_COLORS = {
+    '0.0': '#FF69B4',
+    '1.0': '#4169E1'
+}
 
 
-def is_equalized_odds(x: str) -> bool:
+def format_method_name(method_name: str) -> str:
+    """Format method name by capitalizing and removing underscores.
+
+    :param method_name: Method name with underscores (e.g., 'equalized_odds').
+    :type method_name: str
+    :returns: Formatted method name (e.g., 'Equalized Odds').
+    :rtype: str
     """
-    Check if a given metric belongs to the Equalized Odds.
+    return method_name.replace('_', ' ').title()
 
-    Parameters:
-        metric_name (str): The metric name to check
 
-    Returns:
-        bool: True if the metric is part of Equalized Odds, False otherwise
+def create_consolidated_visualization(data: Dict, demographic_key: str, output_dir: Path) -> None:
+    """Create a 1x2 consolidated visualization for fairness and bias metrics.
+
+    :param data: Dictionary containing fairness analysis results.
+    :type data: Dict
+    :param demographic_key: The demographic attribute to visualize ('age' or 'Sex').
+    :type demographic_key: str
+    :param output_dir: Directory path to save the visualization.
+    :type output_dir: Path
     """
-    return True if x in ["false_positive_rate"] else False
+    fpr_data = {}
+    prediction_data = {}
 
+    fairness_method = data.get('metadata', {}).get('fairness_method', 'equalized_odds')
+    bias_method = data.get('metadata', {}).get('bias_method', 'demographic_parity')
 
-def is_demographic_parity(x: str) -> bool:
-    """
-    Check if a given metric belongs to the Demographic Parity.
+    fairness_method_display = format_method_name(fairness_method)
+    bias_method_display = format_method_name(bias_method)
 
-    Parameters:
-        metric_name (str): The metric name to check
+    if 'equalized_odds_metrics' in data and demographic_key in data['equalized_odds_metrics']:
+        error_rates = data['equalized_odds_metrics'][demographic_key].get('error_rates_by_group', {})
+        for group, rates in error_rates.items():
+            if 'false_positive_rate' in rates:
+                fpr_data[group] = rates['false_positive_rate']
 
-    Returns:
-        bool: True if the metric is part of Demographic Parity, False otherwise
-    """
-    return True if x in ["prediction_rates_by_group"] else False
+    if 'demographic_parity_metrics' in data and demographic_key in data['demographic_parity_metrics']:
+        pred_rates = data['demographic_parity_metrics'][demographic_key].get('prediction_rates_by_group', {})
+        for group, rate in pred_rates.items():
+            prediction_data[group] = rate
 
+    if not fpr_data and not prediction_data:
+        print(f"No data available for demographic: {demographic_key}")
+        return
 
-def demographics_metrics_pairs(data: Dict) -> List[Tuple[str, str]]:
-    """
-    Extract all available (demographic, metric) pairs from a fairness JSON.
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    fig.suptitle(f'Fairness and Bias Analysis by {demographic_key}', fontsize=16, fontweight='bold')
 
-    Parameters:
-        data (dict): Results JSON containing 'equalized_odds_metrics'
-                     and 'demographic_parity_metrics'.
+    color_map = AGE_COLORS if demographic_key == 'age' else SEX_COLORS
 
-    Returns:
-        List[Tuple[str, str]]: List of (demographic_name, metric_name) pairs
-                               that exist in the JSON.
-    """
+    if fpr_data:
+        groups = list(fpr_data.keys())
+        values = list(fpr_data.values())
+        colors = [color_map.get(g, '#4ECDC4') for g in groups]
 
-    demographic_names = list(data.get("equalized_odds_metrics").keys())
+        bars = axes[0].bar(groups, values, color=colors)
+        axes[0].set_title(f'Fairness Calculation using {fairness_method_display}', fontsize=12, fontweight='bold')
+        axes[0].set_xlabel(demographic_key)
+        axes[0].set_ylabel('False Positive Rate')
+        axes[0].set_ylim(0, max(values) * 1.15 if values else 1)
 
-    available_metrics = ["false_positive_rate", "prediction_rates_by_group"]
+        for bar, val in zip(bars, values):
+            axes[0].text(
+                bar.get_x() + bar.get_width() / 2,
+                val + (max(values) * 0.02 if values else 0.02),
+                f'{val:.3f}',
+                ha='center',
+                va='bottom',
+                fontsize=10
+            )
 
-    demogr_metrics = [(x, y) for x in demographic_names for y in available_metrics]
-
-    return demogr_metrics
-
-
-def plot_bar_chart(
-    x, y, title="", xlabel="", ylabel="", figsize=(6, 4), output_path=None, show=False
-):
-    """
-    Bar chart function.
-
-    Parameters:
-        x (list): Categories / groups
-        y (list): Values corresponding to x
-        title (str): Plot title
-        xlabel (str): Label for x-axis
-        ylabel (str): Label for y-axis
-        figsize (tuple, optional): Figure size (default: (6, 4))
-        output_path (str or Path, optional): If provided, save the plot to this path
-        show (bool, optional): Whether to display the plot (default: True)
-    """
-
-    plt.figure(figsize=figsize)
-    bars = plt.bar(x, y, color="steelblue")
-
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-
-    # Add padding above bars
-    ymax = max(y) * 1.1 if y else 1
-    plt.ylim(0, ymax)
-
-    # Annotate bars with values
-    for bar, val in zip(bars, y):
-        plt.text(
-            bar.get_x() + bar.get_width() / 2,
-            val + (ymax * 0.01),
-            f"{val:.2f}",
-            ha="center",
-            va="bottom",
-        )
-
-    plt.tight_layout()
-
-    if output_path:
-        plt.savefig(output_path, dpi=300, bbox_inches="tight")
-
-    if show:
-        plt.show()
+        fig.text(0.25, 0.02, 'Shows false positive rates across demographic groups; lower is better',
+                 ha='center', fontsize=10, style='italic', color='#555555')
     else:
-        plt.close()
+        axes[0].text(0.5, 0.5, 'No FPR data available', ha='center', va='center')
+        axes[0].axis('off')
+
+    if prediction_data:
+        groups = list(prediction_data.keys())
+        values = list(prediction_data.values())
+        colors = [color_map.get(g, '#4ECDC4') for g in groups]
+
+        bars = axes[1].bar(groups, values, color=colors)
+        axes[1].set_title(f'Bias Calculation using {bias_method_display}', fontsize=12, fontweight='bold')
+        axes[1].set_xlabel(demographic_key)
+        axes[1].set_ylabel('Prediction Rate')
+        axes[1].set_ylim(0, max(values) * 1.15 if values else 1)
+
+        for bar, val in zip(bars, values):
+            axes[1].text(
+                bar.get_x() + bar.get_width() / 2,
+                val + (max(values) * 0.02 if values else 0.02),
+                f'{val:.3f}',
+                ha='center',
+                va='bottom',
+                fontsize=10
+            )
+
+        fig.text(0.75, 0.02,
+                 'How often the model predicts positive outcomes; similar values across groups indicate less bias',
+                 ha='center', fontsize=10, style='italic', color='#555555')
+    else:
+        axes[1].text(0.5, 0.5, 'No prediction data available', ha='center', va='center')
+        axes[1].axis('off')
+
+    plt.tight_layout(rect=[0, 0.05, 1, 0.98])
+
+    filename = f"fairness_bias_{demographic_key.lower()}.png"
+    plt.savefig(output_dir / filename, dpi=300, bbox_inches='tight')
+    plt.close()
+    print(f"Saved: {filename}")
 
 
-def visualize_fairness_bias_analysis(analysis_results: Path, output_dir: Path):
+def visualize_fairness_bias_analysis(analysis_results: Path, output_dir: Path) -> None:
+    """Create consolidated visualizations for all fairness/bias metrics in the JSON results.
+
+    :param analysis_results: Path to the JSON file with results.
+    :type analysis_results: Path
+    :param output_dir: Directory to save the plots.
+    :type output_dir: Path
     """
-    Create bar charts for all fairness/bias metrics in the JSON results.
+    data = load_json(analysis_results)
 
-    Parameters:
-        analysis_results (Path): Path to the JSON file with results
-        output_dir (Path): Directory to save the plots
-    """
-
-    # load data
-    analysis_results = load_json(analysis_results)
-
-    # create dir to store plots
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # search for demographics - metrics pairs
-    demogr_metr = demographics_metrics_pairs(analysis_results)
+    if 'equalized_odds_metrics' in data:
+        for demographic_key in data['equalized_odds_metrics'].keys():
+            create_consolidated_visualization(data, demographic_key, output_dir)
 
-    # get categories, values and plot
-    for dem_name, metric in demogr_metr:
-        categories, values = [], []
-
-        if is_equalized_odds(metric):
-            metric_group = "equalized_odds_metrics"
-            rates = "error_rates_by_group"
-        elif is_demographic_parity(metric):
-            metric_group = "demographic_parity_metrics"
-            rates = "prediction_rates_by_group"
-
-        for categ, val in (
-            analysis_results.get(metric_group).get(dem_name).get(rates).items()
-        ):
-            categories.append(categ)
-            values.append(val.get(metric) if is_equalized_odds(metric) else val)
-
-        # create and store plot
-        plot_bar_chart(
-            x=categories,
-            y=values,
-            title=f"{metric} ({dem_name} groups)",
-            xlabel=dem_name,
-            ylabel=metric,
-            output_path=output_dir.joinpath(f"{dem_name}_{metric}.png"),
-        )
-
-    print(f"Plots stored in {output_dir}")
+    print(f"All visualizations saved to {output_dir}")
 
 
-def main():
-    """
-    Main entry point for visualizing fairness and bias analysis results.
-
+def main() -> None:
+    """Entry point for visualizing fairness and bias analysis results.
     Parses command-line arguments for the JSON file containing metrics
     and the output directory to save the visualizations.
     """
-
     parser = argparse.ArgumentParser(
         description="Visualize fairness and bias analysis results for ASCOPD model predictions"
     )

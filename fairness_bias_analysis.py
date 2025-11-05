@@ -1,10 +1,11 @@
 import argparse
+from pathlib import Path
+from typing import Literal, Dict, Tuple, Any, Union
+
 import pandas as pd
 from sklearn.metrics import confusion_matrix
-from typing import Literal, Dict, Tuple, Any, Union
-from pathlib import Path
-from utils import load_csv, store_json, concat_dfs
 
+from utils import load_csv, store_json, concat_dfs
 
 ANALYSIS_MAP = {
     "equalized_odds": "error_rates_by_group",
@@ -13,11 +14,11 @@ ANALYSIS_MAP = {
 
 
 def pass_checks(
-    tabular_data: pd.DataFrame,
-    actual_target: pd.DataFrame,
-    pred_target: pd.DataFrame,
-    target_col: str,
-    demographic_cols: Dict[str, str],
+        tabular_data: pd.DataFrame,
+        actual_target: pd.DataFrame,
+        pred_target: pd.DataFrame,
+        target_col: str,
+        demographic_cols: Dict[str, str],
 ) -> bool:
     """Validate that input DataFrames and required columns pass basic checks.
 
@@ -51,7 +52,7 @@ def pass_checks(
         return False
 
     if (target_col not in actual_target.columns) or (
-        target_col not in pred_target.columns
+            target_col not in pred_target.columns
     ):
         return False
 
@@ -62,11 +63,11 @@ def pass_checks(
 
 
 def prepare_data_for_analysis(
-    tabular_data: pd.DataFrame,
-    actual_target: pd.DataFrame,
-    pred_target: pd.DataFrame,
-    target_col: str,
-    demographic_cols: Dict[str, str],
+        tabular_data: pd.DataFrame,
+        actual_target: pd.DataFrame,
+        pred_target: pd.DataFrame,
+        target_col: str,
+        demographic_cols: Dict[str, str],
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Prepare demographic, actual target, and predicted target DataFrames for analysis.
 
@@ -127,7 +128,7 @@ def compute_fpr(true: pd.Series, pred: pd.Series) -> float:
         float: False Positive Rate = FP / (FP + TN)
     """
 
-    cm = confusion_matrix(true, pred)
+    cm = confusion_matrix(true, pred, labels=[0, 1])
     tn, fp, fn, tp = cm.ravel()
 
     fpr = fp / (fp + tn) if (fp + tn) > 0 else 0
@@ -136,9 +137,9 @@ def compute_fpr(true: pd.Series, pred: pd.Series) -> float:
 
 
 def calculate_metric(
-    data: pd.DataFrame,
-    demographic_cols: Dict[str, str],
-    analysis: Literal["equalized_odds", "demographic_parity"],
+        data: pd.DataFrame,
+        demographic_cols: Dict[str, str],
+        analysis: Literal["equalized_odds", "demographic_parity"],
 ) -> Dict[str, Any]:
     """Calculate fairness metrics (Equalized Odds or Demographic Parity) per demographic group.
 
@@ -184,12 +185,12 @@ def calculate_metric(
 
 
 def fairness_bias_analysis(
-    tabular_data: Union[str, Path],
-    actual_target: Union[str, Path],
-    pred_target: Union[str, Path],
-    target_col: str,
-    output_path: Union[str, Path],
-    demographic_cols: Dict[str, str] = {"age": "age", "gender": "Sex"},
+        tabular_data: Union[str, Path],
+        actual_target: Union[str, Path],
+        pred_target: Union[str, Path],
+        target_col: str,
+        output_path: Union[str, Path],
+        demographic_cols: Dict[str, str] = {"age": "age", "gender": "Sex"},
 ) -> Dict[str, Any]:
     """Run fairness and bias analysis using Equalized Odds and Demographic Parity.
 
@@ -207,8 +208,14 @@ def fairness_bias_analysis(
                         column names in the tabular data. Defaults to {"age": "age", "gender": "Sex"}.
     """
 
-    # Init results
-    results = {"equalized_odds_metrics": {}, "demographic_parity_metrics": {}}
+    results = {
+        "metadata": {
+            "fairness_method": "equalized_odds",
+            "bias_method": "demographic_parity"
+        },
+        "equalized_odds_metrics": {},
+        "demographic_parity_metrics": {}
+    }
 
     # Load data
     tabular_data = load_csv(tabular_data)
@@ -216,7 +223,7 @@ def fairness_bias_analysis(
     pred_target = load_csv(pred_target)
 
     if not pass_checks(
-        tabular_data, actual_target, pred_target, target_col, demographic_cols
+            tabular_data, actual_target, pred_target, target_col, demographic_cols
     ):
         raise ValueError(f"Inconsistent data provided. Check again the data provided.")
 

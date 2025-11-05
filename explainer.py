@@ -7,7 +7,6 @@ import dice_ml
 from ASCOPD_model import DockerModelWrapper
 from utils import is_between, load_csv, store_json, concat_dfs
 
-
 RANDOM_STATE = 2025
 NUMBER_REPEATS = 5
 CATEGORICAL_COLUMNS = ["Sex"]
@@ -33,9 +32,9 @@ NUMERICAL_COLUMNS = [
 
 
 def pass_checks(
-    tabular_data: pd.DataFrame,
-    actual_target: pd.DataFrame,
-    target_col: str,
+        tabular_data: pd.DataFrame,
+        actual_target: pd.DataFrame,
+        target_col: str,
 ) -> bool:
     """Validate that input DataFrames and required columns pass basic checks.
 
@@ -109,7 +108,7 @@ def data_imputation(data: pd.DataFrame) -> pd.DataFrame:
 
 
 def feature_permutation(
-    X: pd.DataFrame, y: pd.DataFrame, model: DockerModelWrapper
+        X: pd.DataFrame, y: pd.DataFrame, model: DockerModelWrapper
 ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     """
     Compute feature importance using permutation importance with a Dockerized model.
@@ -159,10 +158,10 @@ def feature_permutation(
 
 
 def counterfactuals(
-    X: pd.DataFrame,
-    y: pd.DataFrame,
-    target_col: str,
-    model: DockerModelWrapper,
+        X: pd.DataFrame,
+        y: pd.DataFrame,
+        target_col: str,
+        model: DockerModelWrapper,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, float]]]:
     """
     Generate counterfactual explanations and compute global and local feature importance
@@ -228,13 +227,13 @@ def counterfactuals(
 
 
 def run_explainability_analysis(
-    tabular_data: Union[str, Path],
-    actual_target: Union[str, Path],
-    target_col: str,
-    output_dir: Union[str, Path],
-    sensitivity: float,
-    docker_image: str,
-    in_docker_run: bool,
+        tabular_data: Union[str, Path],
+        actual_target: Union[str, Path],
+        target_col: str,
+        output_dir: Union[str, Path],
+        sensitivity: float,
+        docker_image: str,
+        in_docker_run: bool,
 ) -> List[Dict[str, Any]]:
     """
     Runs an explainability analysis on tabular data using either permutation importance
@@ -293,7 +292,16 @@ def run_explainability_analysis(
         data=detailed_results,
         path=output_dir.joinpath(f"{method}_analysis_detailed_results.json"),
     )
-    store_json(data=results, path=output_dir.joinpath(f"{method}_analysis.json"))
+
+    json_data = {
+        "metadata": {
+            "sensitivity": sensitivity,
+            "method": method
+        },
+        "results": results
+    }
+
+    store_json(data=json_data, path=output_dir.joinpath(f"{method}_analysis.json"))
 
 
 def str2bool(v: Literal["True", "False"]) -> bool:
