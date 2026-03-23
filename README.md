@@ -555,6 +555,12 @@ The artifacts include:
 - **visualizations/explainer**: Contains feature importance visualization PNG files
 - **visualizations/fairness_bias**: Contains fairness and bias visualization PNG files
 
+## Acknowledgements
+
+🇪🇺 REALM project has received funding from the European Union's Horizon Europe research and innovation programme under **Grant Agreement No. 101095435**.
+
+*Disclaimer: Funded by the European Union. Views and opinions expressed are however those of the author(s) only and do not necessarily reflect those of the European Union or European Commission. Neither the European Union nor the European Commission can be held responsible for them.*
+
 ## 📜 License & Usage
 
 All rights reserved by MetaMinds Innovations.
